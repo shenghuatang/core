@@ -4,9 +4,12 @@ import { readFile, writeFile, constants, access, copyFile } from "fs";
 import { workspacesDeps, workspacesDefaults, glueDevConfigDefaults } from "../defaults";
 import { CliConfig, FullDevConfig } from "../config/cli.config";
 import { Logger } from "log4js";
+import open from "open";
 
 export class WorkspacesController {
-    constructor(private readonly npm: Npm) { }
+    constructor(
+        private readonly npm: Npm
+    ) { }
 
     public async processWorkspacesCommand(config: CliConfig, logger: Logger, argv: string[]): Promise<void> {
         const workspacesCommand = argv[3];
@@ -15,6 +18,23 @@ export class WorkspacesController {
             await this.start(config, logger);
             return;
         }
+
+        if (workspacesCommand === "build") {
+            await this.startBuilder(config, logger);
+            return;
+        }
+
+        throw new Error(`Unrecognized workspaces command: ${workspacesCommand}`);
+    }
+
+    public async startBuilder(config: CliConfig, logger: Logger): Promise<void> {
+        const port = config.server.settings.port;
+        const baseRoute = config.glueAssets.route;
+        const buildUrl = `http://localhost:${port}${baseRoute}/workspaces/?build=true`;
+
+        logger.info(`Starting the workspaces builder at: ${buildUrl}`);
+
+        await open(buildUrl);
     }
 
     public async start(config: CliConfig, logger: Logger): Promise<void> {
@@ -86,7 +106,7 @@ export class WorkspacesController {
         return new Promise((resolve, reject) => {
             const source = join(config.rootDirectory, "node_modules", "@glue42", "workspaces-app", "manifest.webmanifest");
             const destination = join(config.rootDirectory, "workspaces.webmanifest");
-    
+
             copyFile(source, destination, (err) => {
                 if (err) {
                     return reject(err);
