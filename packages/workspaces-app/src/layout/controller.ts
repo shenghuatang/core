@@ -1,3 +1,4 @@
+/* eslint-disable  @typescript-eslint/no-explicit-any */
 import GoldenLayout = require("@glue42/golden-layout");
 import registryFactory from "callback-registry";
 const ResizeObserver = require("resize-observer-polyfill").default;
@@ -35,6 +36,7 @@ export class LayoutController {
     public async init(config: FrameLayoutConfig) {
         this._frameId = config.frameId;
         await this.initWorkspaceConfig(config.workspaceLayout);
+        this.refreshLayoutSize();
         await Promise.all(config.workspaceConfigs.map(async (c) => {
             await this.initWorkspaceContents(c.id, c.config);
             this.emitter.raiseEvent("workspace-added", { workspace: store.getById(c.id) });
@@ -63,7 +65,7 @@ export class LayoutController {
         }
 
         let contentItem = workspace.layout.root.getItemsByFilter((ci) => ci.isColumn || ci.isRow)[0];
-        if (parentId) {
+        if (parentId && parentId !== workspace.id) {
             contentItem = workspace.layout.root.getItemsById(parentId)[0];
         }
 
@@ -191,6 +193,13 @@ export class LayoutController {
         });
     }
 
+    public closeContainer(itemId: string) {
+        const workspace = store.getByContainerId(itemId) || store.getByWindowId(itemId);
+        const contentItem = workspace.layout.root.getItemsById(itemId)[0];
+
+        contentItem.remove();
+    }
+
     public bundleWorkspace(workspaceId: string, type: "row" | "column") {
         const workspace = store.getById(workspaceId);
 
@@ -220,7 +229,7 @@ export class LayoutController {
             type: "component",
             workspacesConfig: {},
             id,
-            title: configFactory.getWorkspaceTitle(store.workspaceTitles)
+            title: (config?.workspacesOptions as any)?.title || configFactory.getWorkspaceTitle(store.workspaceTitles)
         };
 
         this.registerWorkspaceComponent(id);
@@ -842,5 +851,9 @@ export class LayoutController {
             appName: config.componentState.appName,
             url: config.componentState.url
         };
+    }
+    private refreshLayoutSize() {
+        const bounds = getElementBounds($(this._workspaceLayoutElementId));
+        store.workspaceLayout.updateSize(bounds.width, bounds.height);
     }
 }

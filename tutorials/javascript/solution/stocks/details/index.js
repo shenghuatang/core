@@ -57,23 +57,37 @@ const start = async () => {
     });
     toggleGlueAvailable();
 
-    // const stock = window.glue.windows.my().context;
-
-    const stock = window.glue.appManager.myInstance.context;
-
-    setFields(stock);
-
     const subscription = await window.glue.interop.subscribe('LivePrices');
 
-    subscription.onData((streamData) => {
-        const newPrices = streamData.data.stocks;
-        const selectedStockPrice = newPrices.find((prices) => prices.RIC === stock.RIC);
-        updateStockPrices(selectedStockPrice.Bid, selectedStockPrice.Ask);
+    glue.windows.my().onContextUpdated((ctx) => {
+        if (ctx.stock) {
+            setFields(ctx.stock);
+
+            subscription.onData((streamData) => {
+                const newPrices = streamData.data.stocks;
+                const selectedStockPrice = newPrices.find((prices) => prices.RIC === ctx.stock.RIC);
+                updateStockPrices(selectedStockPrice.Bid, selectedStockPrice.Ask);
+            });
+        }
     });
 
-    window.glue.contexts.subscribe('SelectedClient', (client) => {
-        updateClientStatus(client, stock);
-    });
+    // const stock = window.glue.windows.my().context;
+
+    // const stock = window.glue.appManager.myInstance.context;
+
+    // setFields(stock);
+
+    // const subscription = await window.glue.interop.subscribe('LivePrices');
+
+    // subscription.onData((streamData) => {
+    //     const newPrices = streamData.data.stocks;
+    //     const selectedStockPrice = newPrices.find((prices) => prices.RIC === stock.RIC);
+    //     updateStockPrices(selectedStockPrice.Bid, selectedStockPrice.Ask);
+    // });
+
+    // window.glue.contexts.subscribe('SelectedClient', (client) => {
+    //     updateClientStatus(client, stock);
+    // });
 };
 
 start().catch(console.error);

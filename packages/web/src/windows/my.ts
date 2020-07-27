@@ -48,7 +48,7 @@ export class LocalWebWindow implements Glue42Web.Windows.WebWindow {
         if (typeof title === "object" && title !== null) {
             title = title.title;
         }
-        document.title = title;
+        document.title = title as string;
         return this;
     }
 
@@ -59,6 +59,11 @@ export class LocalWebWindow implements Glue42Web.Windows.WebWindow {
 
     public async moveTo(top?: number | undefined, left?: number | undefined): Promise<Glue42Web.Windows.WebWindow> {
         await this.moveResize({ top, left });
+        return this;
+    }
+
+    public async focus(): Promise<Glue42Web.Windows.WebWindow> {
+        window.focus();
         return this;
     }
 

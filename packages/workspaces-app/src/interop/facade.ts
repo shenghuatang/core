@@ -20,10 +20,11 @@ import {
     BundleWorkspaceArguments,
     MoveFrameArguments,
     MoveWindowToArguments,
+    GenerateLayoutArguments,
 } from "./types";
 import manager from "../manager";
 import store from "../store";
-import { WorkspaceSummary, ColumnItem, RowItem } from "../types/internal";
+import { WorkspaceSummary, ColumnItem, RowItem, WorkspaceLayout, WorkspaceItem } from "../types/internal";
 import configConverter from "../config/converter";
 import configFactory from "../config/factory";
 import GoldenLayout, { RowConfig, ColumnConfig } from "@glue42/golden-layout";
@@ -96,8 +97,7 @@ class GlueFacade {
                     successCallback(await this.handleOpenWorkspace(args.operationArguments));
                     break;
                 case "saveLayout":
-                    await this.handleSaveLayout(args.operationArguments);
-                    successCallback(undefined);
+                    successCallback(await this.handleSaveLayout(args.operationArguments));
                     break;
                 case "exportAllLayouts":
                     successCallback(await this.handleExportAllLayouts());
@@ -137,8 +137,7 @@ class GlueFacade {
                     successCallback(await this.handleCreateWorkspace(args.operationArguments));
                     break;
                 case "forceLoadWindow":
-                    await this.handleForceLoadWindow(args.operationArguments);
-                    successCallback(undefined);
+                    successCallback(await this.handleForceLoadWindow(args.operationArguments));
                     break;
                 case "focusItem":
                     this.handleFocusItem(args.operationArguments);
@@ -165,6 +164,9 @@ class GlueFacade {
                     await this.handleMoveWindowTo(args.operationArguments);
                     successCallback(undefined);
                     break;
+                case "generateLayout":
+                    successCallback(await this.handleGenerateLayout(args.operationArguments));
+                    break;
                 default:
                     errorCallback(`Invalid operation - ${((args as unknown) as { operation: string }).operation}`);
             }
@@ -175,9 +177,9 @@ class GlueFacade {
     }
 
     private async handleOpenWorkspace(operationArguments: OpenWorkspaceArguments): Promise<OpenWorkspaceResult> {
-        const id = await manager.openWorkspace(operationArguments.name, operationArguments.options);
+        const id = await manager.openWorkspace(operationArguments.name, operationArguments.restoreOptions);
         const workspaceConfig = manager.stateResolver.getWorkspaceConfig(id);
-        const workspaceItem = configConverter.convertToAPIConfig(workspaceConfig);
+        const workspaceItem = configConverter.convertToAPIConfig(workspaceConfig) as WorkspaceItem;
 
         return {
             id: workspaceItem.id,
@@ -196,8 +198,8 @@ class GlueFacade {
         };
     }
 
-    private async handleSaveLayout(operationArguments: SaveLayoutArguments): Promise<void> {
-        await manager.saveWorkspace(operationArguments.name, operationArguments.workspaceId);
+    private async handleSaveLayout(operationArguments: SaveLayoutArguments): Promise<WorkspaceLayout> {
+        return await manager.saveWorkspace(operationArguments.name, operationArguments.workspaceId);
     }
 
     private handleDeleteLayout(operationArguments: LayoutSelector): void {
@@ -330,7 +332,7 @@ class GlueFacade {
         };
     }
 
-    private async handleForceLoadWindow(operationArguments: ItemSelector) {
+    private async handleForceLoadWindow(operationArguments: ItemSelector): Promise<{ windowId: string }> {
         return await manager.loadWindow(operationArguments.itemId);
     }
 
@@ -367,6 +369,10 @@ class GlueFacade {
 
     private async handleMoveWindowTo(operationArguments: MoveWindowToArguments) {
         return manager.moveWindowTo(operationArguments.itemId, operationArguments.containerId);
+    }
+
+    private handleGenerateLayout(operationArguments: GenerateLayoutArguments) {
+        return manager.generateWorkspaceLayout(operationArguments.name, operationArguments.workspaceId);
     }
 
     // private subscribeForEvents() {

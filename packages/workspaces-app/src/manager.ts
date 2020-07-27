@@ -5,7 +5,6 @@ import { IFrameController } from "./iframeController";
 import { PopupManager } from "./popupManager";
 import store from "./store";
 import registryFactory from "callback-registry";
-import configFactory from "./config/factory";
 import GoldenLayout from "@glue42/golden-layout";
 import { LayoutsManager } from "./layouts";
 import { LayoutStateResolver } from "./layout/stateResolver";
@@ -15,6 +14,7 @@ import factory from "./config/factory";
 import { WorkspacesEventEmitter } from "./eventEmitter";
 import { Glue42Web } from "@glue42/web";
 import { RestoreWorkspaceConfig } from "./interop/types";
+import { EmptyVisibleWindowName } from "./constants";
 
 declare const window: Window & { glue: Glue42Web.API };
 
@@ -52,7 +52,7 @@ class WorkspacesManager {
         this._stateResolver = new LayoutStateResolver(this._frameId, eventEmitter);
         this._controller = new LayoutController(eventEmitter, this._stateResolver, startupConfig);
         this._frameController = new IFrameController();
-        this._layoutsManager = new LayoutsManager();
+        this._layoutsManager = new LayoutsManager(this.stateResolver);
         this._popupManager = new PopupManager();
         this._workspacesEventEmitter = new WorkspacesEventEmitter();
 
@@ -65,44 +65,37 @@ class WorkspacesManager {
 
     public async saveWorkspace(name: string, id?: string) {
         const workspace = store.getById(id) || store.getActiveWorkspace();
-        await this._layoutsManager.save(name, workspace);
+        const result = await this._layoutsManager.save(name, workspace);
         store.getWorkspaceLayoutItemById(id).setTitle(name);
+        return result;
     }
 
     public async openWorkspace(name: string, options?: RestoreWorkspaceConfig): Promise<string> {
-        if (!this._isLayoutInitialized) {
-            const savedConfig = await this._layoutsManager.getWorkspaceByName(name);
-            if (options?.context) {
-                savedConfig.workspacesOptions.context = options?.context;
-            }
+        const savedConfig = await this._layoutsManager.getWorkspaceByName(name);
+        if (options?.context) {
+            savedConfig.workspacesOptions.context = options?.context;
+        }
 
-            if (options?.title) {
-                (savedConfig.workspacesOptions as WorkspaceOptionsWithTitle).title = options?.title;
-            }
+        if (options?.title) {
+            (savedConfig.workspacesOptions as WorkspaceOptionsWithTitle).title = options?.title;
+        }
+
+        if (savedConfig && savedConfig.workspacesOptions && !savedConfig.workspacesOptions.name) {
+            savedConfig.workspacesOptions.name = name;
+        }
+
+        if (!this._isLayoutInitialized) {
             this._layoutsManager.setInitialWorkspaceConfig(savedConfig);
 
             await this.initLayout();
 
             return idAsString(savedConfig.id);
-        } else if (name === "new") {
-            const id = factory.getId();
-            const defaultWorkspaceConfig = configFactory.getDefaultWorkspaceConfig();
-            await this._controller.addWorkspace(id, defaultWorkspaceConfig);
-
-            return id;
         } else if (name) {
-            const savedWorkspace = await this._layoutsManager.getWorkspaceByName(name);
-            if (options?.context) {
-                savedWorkspace.workspacesOptions.context = options?.context;
-            }
+            savedConfig.id = factory.getId();
 
-            if (options?.title) {
-                (savedWorkspace.workspacesOptions as WorkspaceOptionsWithTitle).title = options?.title;
-            }
+            await this._controller.addWorkspace(savedConfig.id, savedConfig);
 
-            savedWorkspace.id = factory.getId();
-            await this._controller.addWorkspace(savedWorkspace.id, savedWorkspace);
-            return savedWorkspace.id;
+            return savedConfig.id;
         }
     }
 
@@ -124,13 +117,15 @@ class WorkspacesManager {
 
     public async closeItem(itemId: string) {
         const win = store.getWindow(itemId);
-
+        const container = store.getContainer(itemId);
         if (this._frameId === itemId) {
             store.workspaceIds.forEach((wid) => this.closeWorkspace(store.getById(wid)));
             // await window.glue.windows.my().close();
         } else if (win) {
             const windowContentItem = store.getWindowContentItem(itemId);
             this.closeTab(windowContentItem);
+        } else if (container) {
+            this._controller.closeContainer(itemId);
         } else {
             const workspace = store.getById(itemId);
             this.closeWorkspace(workspace);
@@ -142,6 +137,10 @@ class WorkspacesManager {
     }
 
     public addWindow(itemConfig: GoldenLayout.ItemConfig, parentId: string) {
+        const parent = store.getContainer(parentId);
+        if ((!parent || parent.type !== "stack") && itemConfig.type === "component") {
+            itemConfig = factory.wrapInGroup([itemConfig]);
+        }
         return this._controller.addWindow(itemConfig, parentId);
     }
 
@@ -179,11 +178,15 @@ class WorkspacesManager {
         return id;
     }
 
-    public loadWindow(itemId: string) {
-        const contentItem = store.getWindowContentItem(itemId);
-        const { windowId } = contentItem.config.componentState.windowId;
-
-        return new Promise((res, rej) => {
+    public async loadWindow(itemId: string) {
+        let contentItem = store.getWindowContentItem(itemId);
+        let { windowId } = contentItem.config.componentState;
+        if (!windowId) {
+            await this.waitForFrameLoaded(itemId);
+            contentItem = store.getWindowContentItem(itemId);
+            windowId = contentItem.config.componentState.windowId;
+        }
+        return new Promise<{ windowId: string }>((res, rej) => {
             if (!windowId) {
                 rej(`The window id of ${itemId} is missing`);
             }
@@ -252,6 +255,15 @@ class WorkspacesManager {
         return this._controller.addWindow(targetWindow.config, containerId);
     }
 
+    public generateWorkspaceLayout(name: string, itemId: string) {
+        const workspace = store.getById(itemId);
+        if (!workspace) {
+            throw new Error(`Could not find workspace with id ${itemId}`);
+        }
+
+        return this._layoutsManager.generateLayout(name, workspace);
+    }
+
     private async initLayout() {
         const config = await this._layoutsManager.getInitialConfig();
 
@@ -272,15 +284,19 @@ class WorkspacesManager {
 
     private subscribeForLayout() {
         this._controller.emitter.onContentComponentCreated(async (component, workspaceId) => {
+            if (component.config.componentName === EmptyVisibleWindowName) {
+                return;
+            }
             const workspace = store.getById(workspaceId);
             const newWindowBounds = getElementBounds(component.element);
             const { componentState } = component.config;
-            const { windowId } = componentState;
+            const { windowId, title, appName } = componentState;
             const componentId = idAsString(component.config.id);
+            const windowTitle = title || appName;
 
             store.addWindow({ id: componentId, bounds: newWindowBounds, windowId }, workspace.id);
 
-            const workspaceContext = component.layoutManager.config.workspacesOptions.context;
+            const workspaceContext = component?.layoutManager?.config?.workspacesOptions?.context;
             let url = this._appNameToURL[componentState.appName] || componentState.url;
 
             if (!url && windowId) {
@@ -289,10 +305,15 @@ class WorkspacesManager {
                 url = await win.getURL();
             }
 
+            component.config.componentState.url = url;
+            if (windowTitle) {
+                component.setTitle(windowTitle);
+            }
             try {
                 const frame = await this._frameController.startFrame(componentId, url, undefined, workspaceContext, windowId);
 
                 component.config.componentState.windowId = frame.name;
+
                 this._frameController.moveFrame(componentId, getElementBounds(component.element));
 
                 this._workspacesEventEmitter.raiseWindowEvent({
@@ -309,8 +330,13 @@ class WorkspacesManager {
                     }
                 });
             } catch (error) {
-                // If a frame doesn't initialize properly close it
-                this.closeTab(component);
+                // If a frame doesn't initialize properly remove its windowId
+                component.config.componentState.windowId = undefined;
+                if (url) {
+                    this._frameController.moveFrame(componentId, getElementBounds(component.element));
+                } else {
+                    this.closeTab(component);
+                }
                 const wsp = store.getById(workspaceId);
                 if (!wsp) {
                     throw new Error(`Workspace ${workspaceId} failed ot initialize because none of the specified windows were able to load
@@ -390,13 +416,6 @@ class WorkspacesManager {
 
         this._controller.emitter.onSelectionChanged(async (toBack, toFront) => {
             this._frameController.selectionChanged(toFront.map((tf) => tf.id), toBack.map((t) => t.id));
-
-            this._workspacesEventEmitter.raiseWindowEvent({
-                action: "focus",
-                payload: {
-                    windowSummary: await this.stateResolver.getWindowSummary(toFront[0].id)
-                }
-            });
         });
 
         this._controller.emitter.onWorkspaceAdded((workspace) => {
@@ -491,7 +510,8 @@ class WorkspacesManager {
             const payload = {
                 frameId: this._frameId,
                 workspaceId,
-                peerId: window.glue.agm.instance.peerId
+                peerId: window.glue.agm.instance.peerId,
+                buildMode: scReader.config.build
             };
 
             const saveButton = (store
@@ -547,6 +567,9 @@ class WorkspacesManager {
     private subscribeForEvents() {
         window.onbeforeunload = () => {
             const currentWorkspaces = store.layouts;
+            if (scReader.config?.build) {
+                return;
+            }
             this._layoutsManager.saveWorkspacesFrame(currentWorkspaces);
         };
     }
@@ -587,6 +610,26 @@ class WorkspacesManager {
         } else {
             this._controller.removeWorkspace(workspace.id);
         }
+    }
+
+    private waitForFrameLoaded(itemId: string) {
+        return new Promise((res, rej) => {
+            let unsub = () => {
+                // safety
+            };
+            const timeout = setTimeout(() => {
+                unsub();
+                rej(`Did not hear frame loaded for ${itemId} in 5000ms`);
+            }, 5000);
+
+            unsub = this.workspacesEventEmitter.onWindowEvent((action, payload) => {
+                if (action === "loaded" && payload.windowSummary.itemId === itemId) {
+                    res();
+                    clearTimeout(timeout);
+                    unsub();
+                }
+            });
+        });
     }
 }
 

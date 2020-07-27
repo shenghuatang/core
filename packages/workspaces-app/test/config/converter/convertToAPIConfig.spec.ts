@@ -1,22 +1,27 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import configConverter from "../../../src/config/converter";
-import { ColumnItem, RowItem, GroupItem, WindowItem, WorkspaceItem } from "../../../src/types/internal";
+import { ColumnItem, RowItem, GroupItem, WorkspaceItem } from "../../../src/types/internal";
 import { expect } from "chai";
 
-describe("convertToRendererConfig() Should", () => {
+describe("convertToAPIConfig() Should", () => {
     const mockId = "mock";
     const mockApp = "mockApp";
     const mockUrl = "mockUrl";
 
-    const mockAppConfig: WindowItem = {
+    const mockAppConfig: any = {
         id: mockId,
         type: "window",
         config: {
             appName: mockApp,
             isFocused: false,
             isLoaded: false,
-            isMaximized: false,
+            isMaximized: undefined,
             url: mockUrl,
-            windowId: undefined
+            windowId: undefined,
+            frameId: undefined,
+            positionIndex: undefined,
+            title: undefined,
+            workspaceId: undefined
         }
     };
 
