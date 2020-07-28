@@ -187,6 +187,7 @@ export const swimlaneWindowSummaryDecoder: Decoder<Glue42Workspaces.WorkspaceWin
     id: optional(nonEmptyStringDecoder),
     frameId: nonEmptyStringDecoder,
     workspaceId: nonEmptyStringDecoder,
+    appName: optional(nonEmptyStringDecoder),
     positionIndex: number(),
     isMaximized: boolean(),
     title: optional(string()),

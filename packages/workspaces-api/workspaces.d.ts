@@ -252,6 +252,9 @@ export namespace Glue42Workspaces {
         /** The string id of the frame containing this window */
         frameId: string;
 
+        /** The application name of the window if it was registered as an application */
+        appName?: string;
+
         /** The string id of the workspace containing this window */
         workspaceId: string;
 
