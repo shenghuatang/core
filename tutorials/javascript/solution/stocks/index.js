@@ -143,7 +143,7 @@ const stockClickedHandler = async (stock) => {
 
     const myWorkspace = await glue.workspaces.getMyWorkspace();
 
-    let detailsWorkspaceWindow = myWorkspace.getWindow((win) => win.title === "Stock Details");
+    let detailsWorkspaceWindow = myWorkspace.getWindow((win) => win.appName === "Details");
 
     if (detailsWorkspaceWindow) {
         detailsGdWindow = detailsWorkspaceWindow.getGdWindow();
@@ -153,9 +153,9 @@ const stockClickedHandler = async (stock) => {
 
         const myImmediateParent = myWorkspace.getWindow((win) => win.id === myId).parent;
 
-        await myImmediateParent.parent.addGroup({ type: "group", children: [{ type: "window", appName: "Details" }] });
+        const group = await myImmediateParent.parent.addGroup();
 
-        detailsWorkspaceWindow = myWorkspace.getWindow((win) => win.title === "Details");
+        detailsWorkspaceWindow = await group.addWindow({ appName: "Details" });
 
         await detailsWorkspaceWindow.forceLoad();
 

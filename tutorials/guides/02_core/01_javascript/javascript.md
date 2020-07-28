@@ -1011,7 +1011,7 @@ Awesome! At this point when we click a client, we get a workspace and all apps i
 
 Now, let's bring the `stock details` app into the workspace. Our goal is when a user click on a stock, the `stock details` app should appear in the workspace as a sibling to the stocks app.
 
-In order to achieve that we go to the `stockClickedHandler` and define the following logic. If there is an existing `stock details` app in the workspace of the calling window, then we just need to get a reference to the underlying GDWindow of that app and update it's context by passing in the selected stock. If there isn't an app in the workspace, we need to add a new parent of type `group` as a sibling to the parent of the `stocks` window. This new group should contain one child, which is the `stock details` app.
+In order to achieve that we go to the `stockClickedHandler` and define the following logic. If there is an existing `stock details` app in the workspace of the calling window, then we just need to get a reference to the underlying GDWindow of that app and update it's context by passing in the selected stock. If there isn't an app in the workspace, we need to add a new parent of type `group` as a sibling to the parent of the `stocks` window. Then we need to add the `stock details` app to that new group.
 
 This might sound a bit confusing at first, so let's break it down. The `stocks` app is a workspace window, which is the only child of a parent of type `group`. If we just add the `stock details` app as a second child, then that app will appear like a second tab in that group and the user will have to manually toggle between both apps. This is not great. What we need is the `stocks details` app to appear visually like the `stocks` app, which means creating it's own parent of type `group` and making it a sibling to the `stocks` app parent. This way the apps will be both visible and the user can freely move them around as he/she pleases.
 
@@ -1028,7 +1028,7 @@ const stockClickedHandler = async (stock) => {
 
     const myWorkspace = await glue.workspaces.getMyWorkspace();
 
-    let detailsWorkspaceWindow = myWorkspace.getWindow((win) => win.title === "Stock Details");
+    let detailsWorkspaceWindow = myWorkspace.getWindow((win) => win.appName === "Details");
 
     if (detailsWorkspaceWindow) {
         detailsGdWindow = detailsWorkspaceWindow.getGdWindow();
@@ -1038,9 +1038,9 @@ const stockClickedHandler = async (stock) => {
 
         const myImmediateParent = myWorkspace.getWindow((win) => win.id === myId).parent;
 
-        await myImmediateParent.parent.addGroup({ type: "group", children: [{ type: "window", appName: "Details" }] });
+        const group = await myImmediateParent.parent.addGroup();
 
-        detailsWorkspaceWindow = myWorkspace.getWindow((win) => win.title === "Details");
+        detailsWorkspaceWindow = await group.addWindow({ appName: "Details" });
 
         await detailsWorkspaceWindow.forceLoad();
 
@@ -1051,9 +1051,9 @@ const stockClickedHandler = async (stock) => {
 };
 ```
 
-**Note!** We use `forceLoad()` to make sure that the `stock details` app is loaded and therefore a `GdWindow` instance is available. This is needed, because `addGroup()` adds a new group to the workspace and all of it's children, but it does not guarantee that those children will have loaded their respective contents.
+**Note!** We use `forceLoad()` to make sure that the `stock details` app is loaded and therefore a `GdWindow` instance is available. This is needed, because `addWindow()` adds a new window to the workspace (meaning it exists in the workspace as an element), but it does not guarantee that the content has loaded.
 
-As a final touch we need to head over to `stock details`, initialize **Workspaces**. Then comment-out the existing context and subscription logic in the `start` function. Finally we need to subscribe to `onContextUpdated` and listen for context containing a property `stock`, when we get that we update the fields and set up the `onData` handler for that particular stock:
+As a final touch we need to head over to `stock details` and initialize **Workspaces**. Then comment-out the existing context and subscription logic in the `start` function. Finally we need to get the selected stock from the window context. We need to both check the `glue.windows.my().context` and subscribe to `onContextUpdated` in order for our app to continue working as expected even when ejected from the workspace:
 
 ```javascript
 const start = async () => {
@@ -1064,16 +1064,27 @@ const start = async () => {
     toggleGlueAvailable();
 
     const subscription = await window.glue.interop.subscribe('LivePrices');
+    subscription.onData((streamData) => {
+        if (!selectedStock) {
+            return;
+        }
+        const newPrices = streamData.data.stocks;
+        const selectedStockPrice = newPrices.find((prices) => prices.RIC === selectedStock.RIC);
+        updateStockPrices(selectedStockPrice.Bid, selectedStockPrice.Ask);
+    });
+
+    const context = glue.windows.my().context;
+    let selectedStock;
+
+    if (context && context.stock) {
+        selectedStock = context.stock;
+        setFields(selectedStock);
+    }
 
     glue.windows.my().onContextUpdated((ctx) => {
         if (ctx.stock) {
-            setFields(ctx.stock);
-
-            subscription.onData((streamData) => {
-                const newPrices = streamData.data.stocks;
-                const selectedStockPrice = newPrices.find((prices) => prices.RIC === ctx.stock.RIC);
-                updateStockPrices(selectedStockPrice.Bid, selectedStockPrice.Ask);
-            });
+            selectedStock = ctx.stock;
+            setFields(selectedStock);
         }
     });
 };

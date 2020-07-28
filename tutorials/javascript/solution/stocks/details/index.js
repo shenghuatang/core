@@ -2,7 +2,7 @@
 const setFields = (stock) => {
 
     const elementTitle = document.querySelector('.text-center');
-    elementTitle.innerText = elementTitle.innerText + ` ${stock.RIC}`;
+    elementTitle.innerText = "Stock Details" + ` ${stock.RIC}`;
 
     const elementRIC = document.querySelectorAll('[data-ric]')[0];
     elementRIC.innerText = stock.RIC;
@@ -58,16 +58,27 @@ const start = async () => {
     toggleGlueAvailable();
 
     const subscription = await window.glue.interop.subscribe('LivePrices');
+    subscription.onData((streamData) => {
+        if (!selectedStock) {
+            return;
+        }
+        const newPrices = streamData.data.stocks;
+        const selectedStockPrice = newPrices.find((prices) => prices.RIC === selectedStock.RIC);
+        updateStockPrices(selectedStockPrice.Bid, selectedStockPrice.Ask);
+    });
+
+    const context = glue.windows.my().context;
+    let selectedStock;
+
+    if (context && context.stock) {
+        selectedStock = context.stock;
+        setFields(selectedStock);
+    }
 
     glue.windows.my().onContextUpdated((ctx) => {
         if (ctx.stock) {
-            setFields(ctx.stock);
-
-            subscription.onData((streamData) => {
-                const newPrices = streamData.data.stocks;
-                const selectedStockPrice = newPrices.find((prices) => prices.RIC === ctx.stock.RIC);
-                updateStockPrices(selectedStockPrice.Bid, selectedStockPrice.Ask);
-            });
+            selectedStock = ctx.stock;
+            setFields(selectedStock);
         }
     });
 

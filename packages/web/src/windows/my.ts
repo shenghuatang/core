@@ -92,8 +92,8 @@ export class LocalWebWindow implements Glue42Web.Windows.WebWindow {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     public updateContext(context: any): Promise<Glue42Web.Windows.WebWindow> {
         const oldContext = this.context;
-        this.context = Object.assign({}, context, oldContext);
-        this.registry.execute("context-updated", context, oldContext);
+        this.context = Object.assign({}, oldContext, context);
+        this.registry.execute("context-updated", this.context, oldContext);
         return Promise.resolve(this);
     }
 
