@@ -153,12 +153,14 @@ class WorkspacesManager {
     }
 
     public async eject(item: GoldenLayout.Component): Promise<void> {
-        const { appName, url } = item.config.componentState;
+        const { appName, url, windowId } = item.config.componentState;
         const workspaceContext = store.getWorkspaceContext(store.getByWindowId(item.config.id).id);
+        const webWindow = window.glue.windows.findById(windowId);
+        const context = webWindow ? await webWindow.getContext() : workspaceContext;
 
         await this.closeItem(idAsString(item.config.id));
         const ejectedWindowUrl = this._appNameToURL[appName] || url;
-        await window.glue.windows.open(appName, ejectedWindowUrl, { context: workspaceContext } as Glue42Web.Windows.CreateOptions);
+        await window.glue.windows.open(appName, ejectedWindowUrl, { context } as Glue42Web.Windows.CreateOptions);
     }
 
     public async createWorkspace(config: GoldenLayout.Config) {
@@ -241,7 +243,7 @@ class WorkspacesManager {
         };
     }
 
-    public moveWindowTo(itemId: string, containerId: string) {
+    public async moveWindowTo(itemId: string, containerId: string) {
         const targetWorkspace = store.getByContainerId(containerId) || store.getById(containerId);
         if (!targetWorkspace) {
             throw new Error(`Could not find container ${containerId} in frame ${this._frameId}`);

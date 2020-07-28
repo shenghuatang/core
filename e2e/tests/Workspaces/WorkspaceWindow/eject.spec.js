@@ -93,6 +93,41 @@ describe("eject() Should", () => {
         expect(windowsAfterEject.length).to.eql(gdWindows.length + 1);
     });
 
+    it.skip("preserve the window context", async () => {
+        const window = await workspace.addWindow(windowConfig);
+        await window.forceLoad();
+        const randomString = gtf.getWindowName("window");
+        const newContext = { myContext: randomString };
+
+        await window.getGdWindow().setContext(newContext);
+        await window.eject();
+
+        const waitForWindowByName = (name) => {
+            return new Promise((res) => {
+                const unsub = glue.windows.onWindowAdded((w) => {
+                    if (w.name === name) {
+                        res(w);
+                        unsub();
+                    }
+                });
+
+                const win = glue.windows.list().find(w => w.name === name);
+                if (win) {
+                    res(win);
+                    unsub();
+                }
+            });
+        };
+        const ejectedWindow = await waitForWindowByName(window.appName);
+        const wait = new Promise(r => setTimeout(r, 3000));
+        
+        await wait;
+
+        const contextAfterEject = await ejectedWindow.getContext();
+
+        expect(contextAfterEject).to.eql(newContext);
+    });
+
     describe("", () => {
         before(async () => {
             await glue.workspaces.createWorkspace(basicConfig);

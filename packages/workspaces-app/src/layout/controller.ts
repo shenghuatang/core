@@ -99,7 +99,17 @@ export class LayoutController {
                 config = getAllWindowsFromConfig([config])[0];
             }
 
-            if (emptyVisibleWindow) {
+            if (emptyVisibleWindow && !emptyVisibleWindow.parent.config.workspacesConfig?.wrapper) {
+                // Triggered when the API level parent is an empty group
+
+                const group = factory.wrapInGroup([config as GoldenLayout.ComponentConfig]);
+                group.workspacesConfig.wrapper = false;
+                // Replacing the whole stack in order to trigger the header logic and the properly update the title
+                emptyVisibleWindow.parent.parent.replaceChild(emptyVisibleWindow.parent, group);
+
+                return;
+            } else if (emptyVisibleWindow) {
+                // Triggered when the API level parent is an empty group/column
                 emptyVisibleWindow.parent.replaceChild(emptyVisibleWindow, config);
                 return;
             }
@@ -752,6 +762,18 @@ export class LayoutController {
                 e.stopPropagation();
                 const contentItem = container.tab.contentItem;
                 const parentType = contentItem.parent.type === "stack" ? "group" : contentItem.parent.type;
+
+                if (contentItem.parent.config.workspacesConfig.wrapper) {
+                    this.emitter.raiseEvent("add-button-clicked", {
+                        args: {
+                            laneId: idAsString(contentItem.parent.parent.config.id),
+                            workspaceId,
+                            parentType: contentItem.parent.parent.type,
+                            bounds: getElementBounds(newButton)
+                        }
+                    });
+                    return;
+                }
                 this.emitter.raiseEvent("add-button-clicked", {
                     args: {
                         laneId: idAsString(contentItem.parent.config.id),

@@ -113,7 +113,10 @@ GlueWeb(config).then(async (glue) => {
 
                 if (rowColRadioButton && rowColRadioButton.classList.contains("active")) {
                     const containerContent = { type: "group", children: [{ type: "window", appName: a.name }] };
-                    const targetParent = parent.type ? parent.parent : parent;
+                    let targetParent = parent.type ? parent.parent : parent;
+                    if((parent.type==="row" || parent.type==="column") && !parent.children.length){
+                        targetParent =  parent
+                    }
                     const rowArguments = { type: "column", children: [containerContent] };
                     const columnArguments = { type: "row", children: [containerContent] };
 

@@ -185,6 +185,21 @@ describe("properties: ", () => {
             expect(typeof window.focused).to.eql("boolean");
         });
     });
+    
+    describe("appName: ", () => {
+        it(`Should be correct`, () => {
+            const window = workspace.getAllWindows()[0];
+
+            expect(window.appName).to.eql("dummyApp");
+        });
+
+        it(`Should not be empty or undefined`, () => {
+            const window = workspace.getAllWindows()[0];
+
+            expect(window.appName).to.not.be.undefined;
+            expect(window.appName.length).to.not.eql(0);
+        });
+    });
 
     describe("workspace: Should", () => {
         it("be correct for all windows in a workspace", async () => {

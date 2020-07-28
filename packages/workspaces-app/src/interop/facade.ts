@@ -78,8 +78,6 @@ class GlueFacade {
 
     private handleControl = async (args: ControlArguments, caller: object, successCallback: (result: object) => void, errorCallback: (error: string) => void) => {
         try {
-            // tslint:disable-next-line: no-console
-            console.log("Received control message", args.operation, args.operationArguments);
             switch (args.operation) {
                 case "isWindowInWorkspace":
                     successCallback(this.handleIsWindowInWorkspace(args.operationArguments));
