@@ -40,6 +40,7 @@ export interface SwimlaneWindowSnapshotConfig extends BaseChildSnapshotConfig {
     isMaximized: boolean;
     isLoaded: boolean;
     isFocused: boolean;
+    appName?: string;
     title?: string;
 }
 

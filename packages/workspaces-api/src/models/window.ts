@@ -72,6 +72,10 @@ export class Window implements Glue42Workspaces.WorkspaceWindow {
         return getData(this).parent;
     }
 
+    public get appName(): string {
+        return getData(this).config.appName;
+    }
+
     public async forceLoad(): Promise<void> {
         if (this.isLoaded) {
             return;

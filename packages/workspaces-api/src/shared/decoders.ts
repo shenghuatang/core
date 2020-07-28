@@ -183,19 +183,6 @@ export const containerSummaryDecoder: Decoder<Glue42Workspaces.ParentSummary> = 
     positionIndex: number()
 });
 
-export const swimlaneWindowSummaryDecoder: Decoder<Glue42Workspaces.WorkspaceWindowSummary> = object({
-    id: optional(nonEmptyStringDecoder),
-    frameId: nonEmptyStringDecoder,
-    workspaceId: nonEmptyStringDecoder,
-    appName: optional(nonEmptyStringDecoder),
-    positionIndex: number(),
-    isMaximized: boolean(),
-    title: optional(string()),
-    isLoaded: boolean(),
-    focused: boolean(),
-    type: constant("window")
-});
-
 export const streamRequestArgumentsDecoder: Decoder<{ type: StreamType; branch: string }> = object({
     type: oneOf<"frame" | "workspace" | "container" | "window">(
         constant("frame"),
@@ -240,7 +227,8 @@ export const swimlaneWindowSnapshotConfigDecoder: Decoder<SwimlaneWindowSnapshot
         isMaximized: boolean(),
         isLoaded: boolean(),
         isFocused: boolean(),
-        title: optional(string())
+        title: optional(string()),
+        appName: optional(nonEmptyStringDecoder)
     })
 );
 
