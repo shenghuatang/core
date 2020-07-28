@@ -47,7 +47,7 @@ export class Workspace implements Workspace {
         return getData(this).config.title;
     }
 
-    public get children(): Glue42Workspaces.WorkspaceChild[] {
+    public get children(): Glue42Workspaces.WorkspaceElement[] {
         return getData(this).children;
     }
 
@@ -55,7 +55,7 @@ export class Workspace implements Workspace {
         return getData(this).frame;
     }
 
-    public async removeChild(predicate: (child: Glue42Workspaces.WorkspaceChild) => boolean): Promise<void> {
+    public async removeChild(predicate: (child: Glue42Workspaces.WorkspaceElement) => boolean): Promise<void> {
         checkThrowCallback(predicate);
         const child = this.children.find(predicate);
         if (!child) {
@@ -65,7 +65,7 @@ export class Workspace implements Workspace {
         await this.refreshReference();
     }
 
-    public async remove(predicate: (child: Glue42Workspaces.WorkspaceChild) => boolean): Promise<void> {
+    public async remove(predicate: (child: Glue42Workspaces.WorkspaceElement) => boolean): Promise<void> {
         checkThrowCallback(predicate);
         const controller = getData(this).controller;
 
@@ -111,8 +111,8 @@ export class Workspace implements Workspace {
     public async refreshReference(): Promise<void> {
         const newSnapshot = (await getData(this).controller.getSnapshot(this.id, "workspace")) as WorkspaceSnapshotResult;
 
-        const existingChildren = newSnapshot.children.reduce<Glue42Workspaces.WorkspaceChild[]>((foundChildren, child) => {
-            let foundChild: Glue42Workspaces.WorkspaceChild;
+        const existingChildren = newSnapshot.children.reduce<Glue42Workspaces.WorkspaceElement[]>((foundChildren, child) => {
+            let foundChild: Glue42Workspaces.WorkspaceElement;
             if (child.type === "window") {
                 foundChild = this.getWindow((swimlaneWindow) => swimlaneWindow.id === child.id);
             } else {

@@ -37,7 +37,7 @@ export class Column implements Glue42Workspaces.Column {
         return getBase(this).getPositionIndex(this);
     }
 
-    public get children(): Glue42Workspaces.WorkspaceChild[] {
+    public get children(): Glue42Workspaces.WorkspaceElement[] {
         return getBase(this).getAllChildren(this);
     }
     public get parent(): Glue42Workspaces.Workspace | Glue42Workspaces.WorkspaceParent {
@@ -73,7 +73,7 @@ export class Column implements Glue42Workspaces.Column {
         return getBase(this).addParent<Glue42Workspaces.Row>(this, "row", "column", definition);
     }
 
-    public removeChild(predicate: (child: Glue42Workspaces.WorkspaceChild) => boolean): Promise<void> {
+    public removeChild(predicate: (child: Glue42Workspaces.WorkspaceElement) => boolean): Promise<void> {
         return getBase(this).removeChild(this, predicate);
     }
 

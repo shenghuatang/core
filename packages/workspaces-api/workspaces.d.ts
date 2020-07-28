@@ -152,7 +152,7 @@ export namespace Glue42Workspaces {
     export type RestoreType = "direct" | "delayed" | "lazy";
 
     /** An object which represent a workspace element. This is an element can be a parent or a workspace window. */
-    export type WorkspaceChild = Row | Column | Group | WorkspaceWindow;
+    export type WorkspaceElement = WorkspaceParent | WorkspaceWindow;
 
     /** An object which represent a workspace parent. This is an element which contains other elements, called children. */
     export type WorkspaceParent = Row | Column | Group;
@@ -251,9 +251,6 @@ export namespace Glue42Workspaces {
 
         /** The string id of the frame containing this window */
         frameId: string;
-
-        /** The application name of the window if it was registered as an application */
-        appName?: string;
 
         /** The string id of the workspace containing this window */
         workspaceId: string;
@@ -433,7 +430,7 @@ export namespace Glue42Workspaces {
     export interface Workspace extends WorkspaceSummary {
 
         /** A collection containing the immediate children of this workspace */
-        children: WorkspaceChild[];
+        children: WorkspaceElement[];
 
         /** An object representing the frame containing this workspace */
         frame: Frame;
@@ -558,13 +555,13 @@ export namespace Glue42Workspaces {
          * Removes the first element of this workspace which satisfies the predicate.
          * @param predicate A filtering function (predicate) called for each element in this workspace.
          */
-        remove(predicate: (child: WorkspaceChild) => boolean): Promise<void>;
+        remove(predicate: (child: WorkspaceElement) => boolean): Promise<void>;
 
         /**
          * Removes the first immediate child of this parent which satisfies the predicate.
          * @param predicate A filtering function (predicate) called for immediate child of this parent.
          */
-        removeChild(predicate: (child: WorkspaceChild) => boolean): Promise<void>;
+        removeChild(predicate: (child: WorkspaceElement) => boolean): Promise<void>;
 
         /**
          * Transforms this workspace into a workspace with one immediate child of type row and all existing elements are inserted as a child to that row.
@@ -669,7 +666,7 @@ export namespace Glue42Workspaces {
     export interface Parent extends ParentSummary {
 
         /** A collection containing the immediate children of this parent */
-        children: WorkspaceChild[];
+        children: WorkspaceElement[];
 
         /** An object representing this parent's parent */
         parent: Workspace | WorkspaceParent;
@@ -708,7 +705,7 @@ export namespace Glue42Workspaces {
          * Removes the first immediate child of this parent which satisfies the predicate.
          * @param predicate A filtering function (predicate) called for immediate child of this parent.
          */
-        removeChild(predicate: (child: WorkspaceChild) => boolean): Promise<void>;
+        removeChild(predicate: (child: WorkspaceElement) => boolean): Promise<void>;
 
         /**
          * Maximizes this parent relative to it's parent.
