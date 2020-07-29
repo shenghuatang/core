@@ -48,13 +48,15 @@ export const deleteLayoutConfigDecoder: Decoder<DeleteLayoutConfig> = object({
 export const swimlaneWindowDefinitionDecoder: Decoder<Glue42Workspaces.WorkspaceWindowDefinition> = object({
     type: optional(constant("window")),
     appName: optional(nonEmptyStringDecoder),
-    windowId: optional(nonEmptyStringDecoder)
+    windowId: optional(nonEmptyStringDecoder),
+    context: optional(anyJson())
 });
 
 export const strictSwimlaneWindowDefinitionDecoder: Decoder<Glue42Workspaces.WorkspaceWindowDefinition> = object({
     type: constant("window"),
     appName: optional(nonEmptyStringDecoder),
-    windowId: optional(nonEmptyStringDecoder)
+    windowId: optional(nonEmptyStringDecoder),
+    context: optional(anyJson())
 });
 
 export const parentDefinitionDecoder: Decoder<Glue42Workspaces.ParentDefinition> = optional(object({

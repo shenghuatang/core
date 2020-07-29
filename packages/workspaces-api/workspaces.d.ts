@@ -218,6 +218,9 @@ export namespace Glue42Workspaces {
 
         /** The window id of an existing standalone window, which will be dragged into the workspace. */
         windowId?: string;
+
+        /** An object which will be passed to the newly created window. This object is then accessible via the Windows API */
+        context?: any;
     }
 
     /** An object describing the basic details of a frame */
