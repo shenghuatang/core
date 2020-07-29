@@ -66,7 +66,8 @@ class ConfigConverter {
                 id: config.id,
                 appName: config.config?.appName || (config as any).appName,
                 url: config.config?.url || (config as any).url,
-                title: config.config?.title || (config as any).title
+                title: config.config?.title || (config as any).title,
+                context: config.config?.context || (config as any).context
             });
 
             if (parent.type !== "group") {

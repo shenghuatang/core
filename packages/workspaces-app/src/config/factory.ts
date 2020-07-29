@@ -27,7 +27,7 @@ class WorkspacesConfigurationFactory {
         };
     }
 
-    public createGDWindowConfig(args: { windowId: string; id?: string; appName?: string; url?: string; title?: string }): GoldenLayout.ComponentConfig {
+    public createGDWindowConfig(args: { windowId: string; id?: string; appName?: string; url?: string; title?: string; context?: object }): GoldenLayout.ComponentConfig {
         const baseConfiguration = this.createWindowConfigurationCore(args.id);
         return {
             ...baseConfiguration,
@@ -39,7 +39,8 @@ class WorkspacesConfigurationFactory {
                     windowId: args.windowId,
                     appName: args.appName,
                     url: args.url,
-                    title: args.title
+                    title: args.title,
+                    context: args.context
                 }
             }
         };

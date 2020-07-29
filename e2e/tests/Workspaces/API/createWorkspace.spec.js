@@ -26,6 +26,25 @@ describe('createWorkspace() ', function () {
             ]
         };
 
+        const context = {
+            test: "window context"
+        };
+
+        const basicConfigWithContext = {
+            children: [
+                {
+                    type: "row",
+                    children: [
+                        {
+                            type: "window",
+                            context,
+                            appName: "dummyApp"
+                        }
+                    ]
+                }
+            ]
+        };
+
         it('return a promise', async () => {
             const openPromise = glue.workspaces.createWorkspace(basicConfig);
             expect(openPromise.then).to.be.a("function");
@@ -34,10 +53,10 @@ describe('createWorkspace() ', function () {
             await workspace.close();
         });
 
-            it('resolve when valid data is provided', async () => {
-                const workspace = await glue.workspaces.createWorkspace(basicConfig);
-                await workspace.close();
-            });
+        it('resolve when valid data is provided', async () => {
+            const workspace = await glue.workspaces.createWorkspace(basicConfig);
+            await workspace.close();
+        });
 
         it('resolve with a Workspace instance when data is valid', async () => {
             const workspace = await glue.workspaces.createWorkspace(basicConfig);
@@ -51,6 +70,21 @@ describe('createWorkspace() ', function () {
 
             expect(allWorkspaces.some((wsp) => wsp.id === workspace.id)).to.be.true;
             await workspace.close();
+        });
+
+        it('update the window contexts of the windows with a context property when the context property is set', async () => {
+            const workspace = await glue.workspaces.createWorkspace(basicConfigWithContext);
+            const window = workspace.getAllWindows()[0];
+
+            await window.forceLoad();
+            await workspace.refreshReference();
+            const wait = new Promise((r) => setTimeout(r, 3000));
+            await wait;
+
+            const glueWin = window.getGdWindow();
+            const winContext = await glueWin.getContext();
+
+            expect(winContext).to.eql(context);
         });
 
         it('reject and not open a workspace when called with no data', (done) => {

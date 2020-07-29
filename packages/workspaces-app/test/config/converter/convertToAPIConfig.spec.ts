@@ -519,7 +519,7 @@ describe("convertToAPIConfig() Should", () => {
         expect(actualResult).to.eql(expectedResult);
     });
 
-    it("return the golden layout config when the config is a workspace config complex", () => {
+    it("return the api config when the config is a workspace config complex", () => {
         const expectedResult: WorkspaceItem = {
             children: [{
                 type: "row",

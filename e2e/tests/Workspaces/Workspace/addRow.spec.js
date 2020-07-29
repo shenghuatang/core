@@ -42,6 +42,50 @@ describe('addRow() Should ', function () {
         expect(row.constructor.name).to.eql("Row");
     });
 
+    it("add the row and update the context of the windows in it when a window definition array is passed with contexts", async () => {
+        const firstContext = {
+            first: true
+        };
+
+        const secondContext = {
+            second: true
+        };
+        
+        const row = await workspace.addRow({
+            children: [
+                {
+                    type: "window",
+                    context: firstContext,
+                    appName: "dummyApp"
+                },
+                {
+                    type: "window",
+                    context: secondContext,
+                    appName: "dummyApp"
+                }
+            ]
+        });
+
+        await Promise.all(row.children.map((w) => w.forceLoad()));
+        await workspace.refreshReference();
+
+        const wait = new Promise((r) => setTimeout(r, 3000));
+        await wait;
+
+        await Promise.all(row.children.map(async (w, i) => {
+            const glueWin = w.getGdWindow();
+            const winContext = await glueWin.getContext();
+
+            if (winContext.first) {
+                expect(winContext).to.eql(firstContext);
+            } else if (winContext.second) {
+                expect(winContext).to.eql(secondContext);
+            } else {
+                throw new Error(`The window context was not set successfuly ${JSON.stringify(winContext)}`);
+            }
+        }));
+    });
+
     Array.from({ length: 5 }).forEach((_, i) => {
         it(`add ${i + 1} empty row/s to the workspace`, async () => {
 
@@ -77,6 +121,50 @@ describe('addRow() Should ', function () {
             const row = await workspace.addRow();
 
             expect(row.constructor.name).to.eql("Row");
+        });
+
+        it("add the row and update the context of the windows in it when a window definition array is passed with contexts and the workspace is not focused", async () => {
+            const firstContext = {
+                first: true
+            };
+    
+            const secondContext = {
+                second: true
+            };
+            
+            const row = await workspace.addRow({
+                children: [
+                    {
+                        type: "window",
+                        context: firstContext,
+                        appName: "dummyApp"
+                    },
+                    {
+                        type: "window",
+                        context: secondContext,
+                        appName: "dummyApp"
+                    }
+                ]
+            });
+    
+            await Promise.all(row.children.map((w) => w.forceLoad()));
+            await workspace.refreshReference();
+    
+            const wait = new Promise((r) => setTimeout(r, 3000));
+            await wait;
+    
+            await Promise.all(row.children.map(async (w, i) => {
+                const glueWin = w.getGdWindow();
+                const winContext = await glueWin.getContext();
+    
+                if (winContext.first) {
+                    expect(winContext).to.eql(firstContext);
+                } else if (winContext.second) {
+                    expect(winContext).to.eql(secondContext);
+                } else {
+                    throw new Error(`The window context was not set successfuly ${JSON.stringify(winContext)}`);
+                }
+            }));
         });
 
         Array.from({ length: 5 }).forEach((_, i) => {

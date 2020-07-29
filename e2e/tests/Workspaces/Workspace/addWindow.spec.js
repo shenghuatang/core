@@ -42,6 +42,26 @@ describe('addWindow() Should ', function () {
         expect(window.constructor.name).to.eql("Window");
     });
 
+    it("update the window context when a context is passed", async () => {
+        const context = { test: gtf.getWindowName("workspaces") };
+        const window = await workspace.addWindow({
+            type: "window",
+            appName: "dummyApp",
+            context
+        });
+
+        await window.forceLoad();
+        await workspace.refreshReference();
+
+        const wait = new Promise(r => setTimeout(r, 3000));
+        await wait;
+
+        const glueWindow = window.getGdWindow();
+        const windowContext = await glueWindow.getContext();
+
+        expect(windowContext).to.eql(context);
+    });
+
     Array.from({ length: 5 }).forEach((_, i) => {
         it(`add ${i + 1}  window/s to the workspace`, async () => {
 
@@ -69,6 +89,26 @@ describe('addWindow() Should ', function () {
 
         it("resolve when the workspace is not focused", async () => {
             await workspace.addWindow(windowConfig);
+        });
+
+        it("update the window context when a context is passed and the workspace is not focused", async () => {
+            const context = { test: gtf.getWindowName("workspaces") };
+            const window = await workspace.addWindow({
+                type: "window",
+                appName: "dummyApp",
+                context
+            });
+    
+            await window.forceLoad();
+            await workspace.refreshReference();
+    
+            const wait = new Promise(r => setTimeout(r, 3000));
+            await wait;
+    
+            const glueWindow = window.getGdWindow();
+            const windowContext = await glueWindow.getContext();
+    
+            expect(windowContext).to.eql(context);
         });
 
         it("resolve with a window when the workspace is not focused", async () => {

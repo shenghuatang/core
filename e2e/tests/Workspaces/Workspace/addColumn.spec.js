@@ -41,6 +41,50 @@ describe('addColumn() Should ', function () {
         expect(column.constructor.name).to.eql("Column");
     });
 
+    it("add the column and update the context of the windows in it when a window definition array is passed with contexts", async () => {
+        const firstContext = {
+            first: true
+        };
+
+        const secondContext = {
+            second: true
+        };
+
+        const column = await workspace.addColumn({
+            children: [
+                {
+                    type: "window",
+                    context: firstContext,
+                    appName: "dummyApp"
+                },
+                {
+                    type: "window",
+                    context: secondContext,
+                    appName: "dummyApp"
+                }
+            ]
+        });
+
+        await Promise.all(column.children.map((w) => w.forceLoad()));
+        await workspace.refreshReference();
+
+        const wait = new Promise((r) => setTimeout(r, 3000));
+        await wait;
+
+        await Promise.all(column.children.map(async (w, i) => {
+            const glueWin = w.getGdWindow();
+            const winContext = await glueWin.getContext();
+
+            if (winContext.first) {
+                expect(winContext).to.eql(firstContext);
+            } else if (winContext.second) {
+                expect(winContext).to.eql(secondContext);
+            } else {
+                throw new Error(`The window context was not set successfuly ${JSON.stringify(winContext)}`);
+            }
+        }));
+    });
+
     Array.from({ length: 5 }).forEach((_, i) => {
         it(`add ${i + 1} empty column/s to the workspace`, async () => {
 
@@ -78,6 +122,50 @@ describe('addColumn() Should ', function () {
             const column = await workspace.addColumn();
 
             expect(column.constructor.name).to.eql("Column");
+        });
+
+        it("add the column and update the context of the windows in it when a window definition array is passed with contexts and the workspace is not focused", async () => {
+            const firstContext = {
+                first: true
+            };
+    
+            const secondContext = {
+                second: true
+            };
+    
+            const column = await workspace.addColumn({
+                children: [
+                    {
+                        type: "window",
+                        context: firstContext,
+                        appName: "dummyApp"
+                    },
+                    {
+                        type: "window",
+                        context: secondContext,
+                        appName: "dummyApp"
+                    }
+                ]
+            });
+    
+            await Promise.all(column.children.map((w) => w.forceLoad()));
+            await workspace.refreshReference();
+    
+            const wait = new Promise((r) => setTimeout(r, 3000));
+            await wait;
+    
+            await Promise.all(column.children.map(async (w, i) => {
+                const glueWin = w.getGdWindow();
+                const winContext = await glueWin.getContext();
+    
+                if (winContext.first) {
+                    expect(winContext).to.eql(firstContext);
+                } else if (winContext.second) {
+                    expect(winContext).to.eql(secondContext);
+                } else {
+                    throw new Error(`The window context was not set successfuly ${JSON.stringify(winContext)}`);
+                }
+            }));
         });
 
         Array.from({ length: 5 }).forEach((_, i) => {

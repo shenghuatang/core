@@ -316,6 +316,12 @@ class WorkspacesManager {
 
                 component.config.componentState.windowId = frame.name;
 
+                if (component.config.componentState?.context) {
+                    const win = window.glue.windows.findById(frame.name);
+
+                    win.updateContext(component.config.componentState.context);
+                }
+
                 this._frameController.moveFrame(componentId, getElementBounds(component.element));
 
                 this._workspacesEventEmitter.raiseWindowEvent({

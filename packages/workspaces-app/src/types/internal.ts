@@ -40,6 +40,7 @@ export interface WindowItem {
         frameId?: string;
         positionIndex?: number;
         title?: string;
+        context?: string;
     };
 }
 
@@ -158,6 +159,7 @@ export interface WindowDefinition {
     appName?: string;
     url?: string;
     windowId?: string;
+    context?: object;
 }
 
 export interface StartupConfig {

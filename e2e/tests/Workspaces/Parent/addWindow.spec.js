@@ -76,34 +76,76 @@ describe("addWindow() Should", () => {
             expect(windows.length).to.eql(2);
         });
 
-        describe("",() => {
-            beforeEach(async () => {
-                 await glue.workspaces.createWorkspace(config);
+        it(`update the window context when a context is passed and the parent is ${parentType}`, async () => {
+            const parent = workspace.getAllParents().find(p => p.type === parentType);
+            const context = { test: gtf.getWindowName("workspaces") };
+            const window = await parent.addWindow({
+                type: "window",
+                appName: "dummyApp",
+                context
             });
-        
+
+            await window.forceLoad();
+            await workspace.refreshReference();
+
+            const wait = new Promise(r => setTimeout(r, 3000));
+            await wait;
+
+            const glueWindow = window.getGdWindow();
+            const windowContext = await glueWindow.getContext();
+
+            expect(windowContext).to.eql(context);
+        });
+
+        describe("", () => {
+            beforeEach(async () => {
+                await glue.workspaces.createWorkspace(config);
+            });
+
             it(`return the added window when the parent is a ${parentType} and the workspace is not focused`, async () => {
                 const parent = workspace.getAllParents().find(p => p.type === parentType);
                 const window = await parent.addWindow({
                     type: "window",
                     appName: "dummyApp"
                 });
-    
+
                 expect(window).to.not.be.undefined;
                 expect(window.constructor.name).to.eql("Window");
             });
-    
+
             it(`add the window when the parent is ${parentType} and the workspace is not focused`, async () => {
                 const parent = workspace.getAllParents().find(p => p.type === parentType);
                 const window = await parent.addWindow({
                     type: "window",
                     appName: "dummyApp"
                 });
+
+                await workspace.refreshReference();
+
+                const windows = workspace.getAllWindows();
+
+                expect(windows.length).to.eql(2);
+            });
+
+            it(`update the window context when a context is passed and the parent is ${parentType} and the workspace is not focused`, async () => {
+                const parent = workspace.getAllParents().find(p => p.type === parentType);
+                const context = { test: gtf.getWindowName("workspaces") };
+                const window = await parent.addWindow({
+                    type: "window",
+                    appName: "dummyApp",
+                    context
+                });
     
+                await window.forceLoad();
                 await workspace.refreshReference();
     
-                const windows = workspace.getAllWindows();
+                const wait = new Promise(r => setTimeout(r, 3000));
+                await wait;
     
-                expect(windows.length).to.eql(2);
+                const glueWindow = window.getGdWindow();
+                const windowContext = await glueWindow.getContext();
+    
+                expect(windowContext).to.eql(context);
             });
         });
 

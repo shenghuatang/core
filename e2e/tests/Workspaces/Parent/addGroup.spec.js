@@ -185,6 +185,52 @@ describe("addGroup() Should", () => {
         expect(allParentsAfterAdd.length).to.eql(allParents.length + 1);
     });
 
+    it("add the group and update the context of the windows in it when a window definition array is passed with contexts", async () => {
+        const allParents = workspace.getAllParents();
+        const column = allParents.find(p => p.type === "column");
+        const firstContext = {
+            first: true
+        };
+
+        const secondContext = {
+            second: true
+        };
+        
+        const group = await column.addGroup({
+            children: [
+                {
+                    type: "window",
+                    context: firstContext,
+                    appName: "dummyApp"
+                },
+                {
+                    type: "window",
+                    context: secondContext,
+                    appName: "dummyApp"
+                }
+            ]
+        });
+
+        await Promise.all(group.children.map((w) => w.forceLoad()));
+        await workspace.refreshReference();
+
+        const wait = new Promise((r) => setTimeout(r, 3000));
+        await wait;
+
+        await Promise.all(group.children.map(async (w, i) => {
+            const glueWin = w.getGdWindow();
+            const winContext = await glueWin.getContext();
+
+            if (winContext.first) {
+                expect(winContext).to.eql(firstContext);
+            } else if (winContext.second) {
+                expect(winContext).to.eql(secondContext);
+            } else {
+                throw new Error(`The window context was not set successfuly ${JSON.stringify(winContext)}`);
+            }
+        }));
+    });
+
     it("return the group when the parent is a column and is without arguments", async () => {
         const allParents = workspace.getAllParents();
         const column = allParents.find(p => p.type === "column");

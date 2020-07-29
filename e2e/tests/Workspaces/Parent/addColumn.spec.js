@@ -78,7 +78,7 @@ describe("addColumn() Should", () => {
         expect(column.constructor.name).to.eql("Column");
     });
 
-    it("add the column when the parent is a row and is  passed column as a type", async () => {
+    it("add the column when the parent is a row and is passed column as a type", async () => {
         const allParents = workspace.getAllParents();
         const row = allParents.find(p => p.type === "row");
         await row.addColumn({ type: "column" });
@@ -105,6 +105,52 @@ describe("addColumn() Should", () => {
 
         const allParentsAfterAdd = workspace.getAllParents();
         expect(allParentsAfterAdd.length).to.eql(allParents.length + 1);
+    });
+
+    it("add the column and update the context of the windows in it when a window definition array is passed with contexts", async () => {
+        const allParents = workspace.getAllParents();
+        const row = allParents.find(p => p.type === "row");
+        const firstContext = {
+            first: true
+        };
+
+        const secondContext = {
+            second: true
+        };
+
+        const column = await row.addColumn({
+            children: [
+                {
+                    type: "window",
+                    context: firstContext,
+                    appName: "dummyApp"
+                },
+                {
+                    type: "window",
+                    context: secondContext,
+                    appName: "dummyApp"
+                }
+            ]
+        });
+
+        await Promise.all(column.children.map((w) => w.forceLoad()));
+        await workspace.refreshReference();
+
+        const wait = new Promise((r) => setTimeout(r, 3000));
+        await wait;
+
+        await Promise.all(column.children.map(async (w, i) => {
+            const glueWin = w.getGdWindow();
+            const winContext = await glueWin.getContext();
+
+            if (winContext.first) {
+                expect(winContext).to.eql(firstContext);
+            } else if (winContext.second) {
+                expect(winContext).to.eql(secondContext);
+            } else {
+                throw new Error(`The window context was not set successfuly ${JSON.stringify(winContext)}`);
+            }
+        }));
     });
 
     it("return the column when the parent is a row and is without arguments", async () => {
@@ -186,6 +232,52 @@ describe("addColumn() Should", () => {
 
             const allParentsAfterAdd = workspace.getAllParents();
             expect(allParentsAfterAdd.length).to.eql(allParents.length + 1);
+        });
+
+        it("add the column and update the context of the windows in it when a window definition array is passed with contexts and the workspace is not focused", async () => {
+            const allParents = workspace.getAllParents();
+            const row = allParents.find(p => p.type === "row");
+            const firstContext = {
+                first: true
+            };
+    
+            const secondContext = {
+                second: true
+            };
+    
+            const column = await row.addColumn({
+                children: [
+                    {
+                        type: "window",
+                        context: firstContext,
+                        appName: "dummyApp"
+                    },
+                    {
+                        type: "window",
+                        context: secondContext,
+                        appName: "dummyApp"
+                    }
+                ]
+            });
+    
+            await Promise.all(column.children.map((w) => w.forceLoad()));
+            await workspace.refreshReference();
+    
+            const wait = new Promise((r) => setTimeout(r, 3000));
+            await wait;
+    
+            await Promise.all(column.children.map(async (w, i) => {
+                const glueWin = w.getGdWindow();
+                const winContext = await glueWin.getContext();
+    
+                if (winContext.first) {
+                    expect(winContext).to.eql(firstContext);
+                } else if (winContext.second) {
+                    expect(winContext).to.eql(secondContext);
+                } else {
+                    throw new Error(`The window context was not set successfuly ${JSON.stringify(winContext)}`);
+                }
+            }));
         });
 
         it("return the column when the parent is a row and is without arguments when the workspace is not focused", async () => {

@@ -265,7 +265,8 @@ class GlueFacade {
             windowId: operationArguments.definition.windowId,
             id: undefined,
             appName: operationArguments.definition.appName,
-            url: operationArguments.definition.url
+            url: operationArguments.definition.url,
+            context: operationArguments.definition.context
         });
 
         if (operationArguments.definition.windowId) {
