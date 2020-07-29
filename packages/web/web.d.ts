@@ -67,6 +67,7 @@ export namespace Glue42Web {
     export interface Config {
         /**
          * @ignore
+         * @deprecated
          * By default @glue42/web will try to connect to a shared worker located in "/glue/worker.js". Use this ot override the shared worker location.
          * It is recommended to use `worker` to define a custom location for the worker script, if extends has been set to `false`.
          * @default "/glue/worker.js"
@@ -87,6 +88,7 @@ export namespace Glue42Web {
 
         /**
          * @ignore
+         * @deprecated
          * Defines a URL to a hosted `glue.config.json` file which the library will fetch and use to extend the built-in config defaults. We recommend setting thi to `false`, if you do not have said configuration file. Also keep in mind that if you define a custom URL, then the library will expect to find a `worker.js` file next to the config.
          * @default true
          */
@@ -117,7 +119,7 @@ export namespace Glue42Web {
         application?: string;
 
         /**
-         * A list of glue libraries which will be initiated internally and provide access to specific functionalities
+         * todo: An object exposing settings related to the Glue42 Core resources.
          */
         assets?: WebAssets;
 

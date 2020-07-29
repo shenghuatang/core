@@ -2,13 +2,13 @@
 import { Glue42Web } from "../web";
 
 export interface Glue42CoreConfig {
-  glue?: Glue42Web.Config;
-  gateway?: any;
-  channels?: Glue42Web.Channels.ChannelContext[];
-  appManager?: AppManagerConfig;
-  layouts?: {
-    remoteType: "none" | "json";
-  };
+    glue?: Glue42Web.Config;
+    gateway?: any;
+    channels?: Glue42Web.Channels.ChannelContext[];
+    appManager?: AppManagerConfig;
+    layouts?: {
+        remoteType: "none" | "json";
+    };
 }
 
 export interface AppManagerConfig {
