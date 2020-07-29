@@ -316,13 +316,16 @@ class WorkspacesManager {
 
                 component.config.componentState.windowId = frame.name;
 
+                this._frameController.moveFrame(componentId, getElementBounds(component.element));
+
+
                 if (component.config.componentState?.context) {
                     const win = window.glue.windows.findById(frame.name);
 
-                    win.updateContext(component.config.componentState.context);
-                }
+                    await win.updateContext(component.config.componentState.context);
 
-                this._frameController.moveFrame(componentId, getElementBounds(component.element));
+                    delete component.config.componentState.context;
+                }
 
                 this._workspacesEventEmitter.raiseWindowEvent({
                     action: "added",
