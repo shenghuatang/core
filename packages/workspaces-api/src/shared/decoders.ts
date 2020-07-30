@@ -59,11 +59,11 @@ export const strictSwimlaneWindowDefinitionDecoder: Decoder<Glue42Workspaces.Wor
     context: optional(anyJson())
 });
 
-export const parentDefinitionDecoder: Decoder<Glue42Workspaces.ParentDefinition> = optional(object({
+export const parentDefinitionDecoder: Decoder<Glue42Workspaces.BoxDefinition> = optional(object({
     type: optional(subParentDecoder),
     children: optional(
         lazy(() => array(
-            oneOf<Glue42Workspaces.WorkspaceWindowDefinition | Glue42Workspaces.ParentDefinition>(
+            oneOf<Glue42Workspaces.WorkspaceWindowDefinition | Glue42Workspaces.BoxDefinition>(
                 swimlaneWindowDefinitionDecoder,
                 parentDefinitionDecoder
             )
@@ -71,11 +71,11 @@ export const parentDefinitionDecoder: Decoder<Glue42Workspaces.ParentDefinition>
     )
 }));
 
-export const strictParentDefinitionDecoder: Decoder<Glue42Workspaces.ParentDefinition> = object({
+export const strictParentDefinitionDecoder: Decoder<Glue42Workspaces.BoxDefinition> = object({
     type: subParentDecoder,
     children: optional(
         lazy(() => array(
-            oneOf<Glue42Workspaces.WorkspaceWindowDefinition | Glue42Workspaces.ParentDefinition>(
+            oneOf<Glue42Workspaces.WorkspaceWindowDefinition | Glue42Workspaces.BoxDefinition>(
                 strictSwimlaneWindowDefinitionDecoder,
                 strictParentDefinitionDecoder
             )
@@ -125,7 +125,7 @@ export const openWorkspaceConfigDecoder: Decoder<OpenWorkspaceConfig> = object({
 });
 
 export const workspaceDefinitionDecoder: Decoder<Glue42Workspaces.WorkspaceDefinition> = object({
-    children: optional(array(oneOf<Glue42Workspaces.WorkspaceWindowDefinition | Glue42Workspaces.ParentDefinition>(
+    children: optional(array(oneOf<Glue42Workspaces.WorkspaceWindowDefinition | Glue42Workspaces.BoxDefinition>(
         swimlaneWindowDefinitionDecoder,
         parentDefinitionDecoder
     ))),
@@ -146,7 +146,7 @@ export const workspaceDefinitionDecoder: Decoder<Glue42Workspaces.WorkspaceDefin
 
 export const builderConfigDecoder: Decoder<Glue42Workspaces.BuilderConfig> = object({
     type: allParentDecoder,
-    definition: optional(oneOf<Glue42Workspaces.WorkspaceDefinition | Glue42Workspaces.ParentDefinition>(
+    definition: optional(oneOf<Glue42Workspaces.WorkspaceDefinition | Glue42Workspaces.BoxDefinition>(
         workspaceDefinitionDecoder,
         parentDefinitionDecoder
     ))
@@ -177,7 +177,7 @@ export const workspaceSummaryDecoder: Decoder<Glue42Workspaces.WorkspaceSummary>
     focused: boolean()
 });
 
-export const containerSummaryDecoder: Decoder<Glue42Workspaces.ParentSummary> = object({
+export const containerSummaryDecoder: Decoder<Glue42Workspaces.BoxSummary> = object({
     type: subParentDecoder,
     id: nonEmptyStringDecoder,
     frameId: nonEmptyStringDecoder,

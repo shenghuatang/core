@@ -50,66 +50,66 @@ describe("addColumn() Should", () => {
         await Promise.all(frames.map((f) => f.close()));
     });
 
-    it("return the column when the parent is a row and is passed a column definition", async () => {
-        const allParents = workspace.getAllParents();
-        const row = allParents.find(p => p.type === "row");
+    it("return the column when the box parent is a row and is passed a column definition", async () => {
+        const allBoxes = workspace.getAllBoxes();
+        const row = allBoxes.find(p => p.type === "row");
         const column = await row.addColumn({ type: "column", children: [] });
 
         expect(column).to.not.be.undefined;
         expect(column.constructor.name).to.eql("Column");
     });
 
-    it("add the column when the parent is a row and is passed a column definition", async () => {
-        const allParents = workspace.getAllParents();
-        const row = allParents.find(p => p.type === "row");
+    it("add the column when the box parent is a row and is passed a column definition", async () => {
+        const allBoxes = workspace.getAllBoxes();
+        const row = allBoxes.find(p => p.type === "row");
         await row.addColumn({ type: "column", children: [] });
         await workspace.refreshReference();
 
-        const allParentsAfterAdd = workspace.getAllParents();
-        expect(allParentsAfterAdd.length).to.eql(allParents.length + 1);
+        const allBoxesAfterAdd = workspace.getAllBoxes();
+        expect(allBoxesAfterAdd.length).to.eql(allBoxes.length + 1);
     });
 
-    it("return the column when the parent is a row and is passed column as a type", async () => {
-        const allParents = workspace.getAllParents();
-        const row = allParents.find(p => p.type === "row");
+    it("return the column when the box parent is a row and is passed column as a type", async () => {
+        const allBoxes = workspace.getAllBoxes();
+        const row = allBoxes.find(p => p.type === "row");
         const column = await row.addColumn({ type: "column" });
 
         expect(column).to.not.be.undefined;
         expect(column.constructor.name).to.eql("Column");
     });
 
-    it("add the column when the parent is a row and is passed column as a type", async () => {
-        const allParents = workspace.getAllParents();
-        const row = allParents.find(p => p.type === "row");
+    it("add the column when the box parent is a row and is passed column as a type", async () => {
+        const allBoxes = workspace.getAllBoxes();
+        const row = allBoxes.find(p => p.type === "row");
         await row.addColumn({ type: "column" });
         await workspace.refreshReference();
 
-        const allParentsAfterAdd = workspace.getAllParents();
-        expect(allParentsAfterAdd.length).to.eql(allParents.length + 1);
+        const allBoxesAfterAdd = workspace.getAllBoxes();
+        expect(allBoxesAfterAdd.length).to.eql(allBoxes.length + 1);
     });
 
-    it("return the column when the parent is a row and a children array is passed", async () => {
-        const allParents = workspace.getAllParents();
-        const row = allParents.find(p => p.type === "row");
+    it("return the column when the box parent is a row and a children array is passed", async () => {
+        const allBox = workspace.getAllBoxes();
+        const row = allBox.find(p => p.type === "row");
         const column = await row.addColumn({ children: [] });
 
         expect(column).to.not.be.undefined;
         expect(column.constructor.name).to.eql("Column");
     });
 
-    it("add the column when the parent is a row and a children array is passed", async () => {
-        const allParents = workspace.getAllParents();
-        const row = allParents.find(p => p.type === "row");
+    it("add the column when the box parent is a row and a children array is passed", async () => {
+        const allBoxes = workspace.getAllBoxes();
+        const row = allBoxes.find(p => p.type === "row");
         await row.addColumn({ children: [] });
         await workspace.refreshReference();
 
-        const allParentsAfterAdd = workspace.getAllParents();
-        expect(allParentsAfterAdd.length).to.eql(allParents.length + 1);
+        const allBoxesAfterAdd = workspace.getAllBoxes();
+        expect(allBoxesAfterAdd.length).to.eql(allBoxes.length + 1);
     });
 
     it("add the column and update the context of the windows in it when a window definition array is passed with contexts", async () => {
-        const allParents = workspace.getAllParents();
-        const row = allParents.find(p => p.type === "row");
+        const allBoxes = workspace.getAllBoxes();
+        const row = allBoxes.find(p => p.type === "row");
         const firstContext = {
             first: true
         };
@@ -153,23 +153,23 @@ describe("addColumn() Should", () => {
         }));
     });
 
-    it("return the column when the parent is a row and is without arguments", async () => {
-        const allParents = workspace.getAllParents();
-        const row = allParents.find(p => p.type === "row");
+    it("return the column when the box parent is a row and is without arguments", async () => {
+        const allBoxes = workspace.getAllBoxes();
+        const row = allBoxes.find(p => p.type === "row");
         const column = await row.addColumn();
 
         expect(column).to.not.be.undefined;
         expect(column.constructor.name).to.eql("Column");
     });
 
-    it("add the column when the parent is a row and is without arguments", async () => {
-        const allParents = workspace.getAllParents();
-        const row = allParents.find(p => p.type === "row");
+    it("add the column when the box parent is a row and is without arguments", async () => {
+        const allBoxes = workspace.getAllBoxes();
+        const row = allBoxes.find(p => p.type === "row");
         await row.addColumn();
         await workspace.refreshReference();
 
-        const allParentsAfterAdd = workspace.getAllParents();
-        expect(allParentsAfterAdd.length).to.eql(allParents.length + 1);
+        const allBoxesAfterAdd = workspace.getAllBoxes();
+        expect(allBoxesAfterAdd.length).to.eql(allBoxes.length + 1);
     });
 
     describe("", () => {
@@ -177,66 +177,66 @@ describe("addColumn() Should", () => {
             await glue.workspaces.createWorkspace(config);
         });
 
-        it("return the column when the parent is a row and is passed a column definition when the workspace is not focused", async () => {
-            const allParents = workspace.getAllParents();
-            const row = allParents.find(p => p.type === "row");
+        it("return the column when the box parent is a row and is passed a column definition when the workspace is not focused", async () => {
+            const allBoxes = workspace.getAllBoxes();
+            const row = allBoxes.find(p => p.type === "row");
             const column = await row.addColumn({ type: "column", children: [] });
 
             expect(column).to.not.be.undefined;
             expect(column.constructor.name).to.eql("Column");
         });
 
-        it("add the column when the parent is a row and is passed a column definition when the workspace is not focused", async () => {
-            const allParents = workspace.getAllParents();
-            const row = allParents.find(p => p.type === "row");
+        it("add the column when the box parent is a row and is passed a column definition when the workspace is not focused", async () => {
+            const allBoxes = workspace.getAllBoxes();
+            const row = allBoxes.find(p => p.type === "row");
             await row.addColumn({ type: "column", children: [] });
             await workspace.refreshReference();
 
-            const allParentsAfterAdd = workspace.getAllParents();
-            expect(allParentsAfterAdd.length).to.eql(allParents.length + 1);
+            const allBoxesAfterAdd = workspace.getAllBoxes();
+            expect(allBoxesAfterAdd.length).to.eql(allBoxes.length + 1);
         });
 
-        it("return the column when the parent is a row and is passed column as a type when the workspace is not focused", async () => {
-            const allParents = workspace.getAllParents();
-            const row = allParents.find(p => p.type === "row");
+        it("return the column when the box parent is a row and is passed column as a type when the workspace is not focused", async () => {
+            const allBoxes = workspace.getAllBoxes();
+            const row = allBoxes.find(p => p.type === "row");
             const column = await row.addColumn({ type: "column" });
 
             expect(column).to.not.be.undefined;
             expect(column.constructor.name).to.eql("Column");
         });
 
-        it("add the column when the parent is a row and is  passed column as a type when the workspace is not focused", async () => {
-            const allParents = workspace.getAllParents();
-            const row = allParents.find(p => p.type === "row");
+        it("add the column when the box parent is a row and is  passed column as a type when the workspace is not focused", async () => {
+            const allBoxes = workspace.getAllBoxes();
+            const row = allBoxes.find(p => p.type === "row");
             await row.addColumn({ type: "column" });
             await workspace.refreshReference();
 
-            const allParentsAfterAdd = workspace.getAllParents();
-            expect(allParentsAfterAdd.length).to.eql(allParents.length + 1);
+            const allBoxesAfterAdd = workspace.getAllBoxes();
+            expect(allBoxesAfterAdd.length).to.eql(allBoxes.length + 1);
         });
 
-        it("return the column when the parent is a row and a children array is passed when the workspace is not focused", async () => {
-            const allParents = workspace.getAllParents();
-            const row = allParents.find(p => p.type === "row");
+        it("return the column when the box parent is a row and a children array is passed when the workspace is not focused", async () => {
+            const allBoxes = workspace.getAllBoxes();
+            const row = allBoxes.find(p => p.type === "row");
             const column = await row.addColumn({ children: [] });
 
             expect(column).to.not.be.undefined;
             expect(column.constructor.name).to.eql("Column");
         });
 
-        it("add the column when the parent is a row and a children array is passed when the workspace is not focused", async () => {
-            const allParents = workspace.getAllParents();
-            const row = allParents.find(p => p.type === "row");
+        it("add the column when the box parent is a row and a children array is passed when the workspace is not focused", async () => {
+            const allBoxes = workspace.getAllBoxes();
+            const row = allBoxes.find(p => p.type === "row");
             await row.addColumn({ children: [] });
             await workspace.refreshReference();
 
-            const allParentsAfterAdd = workspace.getAllParents();
-            expect(allParentsAfterAdd.length).to.eql(allParents.length + 1);
+            const allBoxesAfterAdd = workspace.getAllBoxes();
+            expect(allBoxesAfterAdd.length).to.eql(allBoxes.length + 1);
         });
 
         it("add the column and update the context of the windows in it when a window definition array is passed with contexts and the workspace is not focused", async () => {
-            const allParents = workspace.getAllParents();
-            const row = allParents.find(p => p.type === "row");
+            const allBoxes = workspace.getAllBoxes();
+            const row = allBoxes.find(p => p.type === "row");
             const firstContext = {
                 first: true
             };
@@ -275,66 +275,66 @@ describe("addColumn() Should", () => {
                 } else if (winContext.second) {
                     expect(winContext).to.eql(secondContext);
                 } else {
-                    throw new Error(`The window context was not set successfuly ${JSON.stringify(winContext)}`);
+                    throw new Error(`The window context was not set successfully ${JSON.stringify(winContext)}`);
                 }
             }));
         });
 
-        it("return the column when the parent is a row and is without arguments when the workspace is not focused", async () => {
-            const allParents = workspace.getAllParents();
-            const row = allParents.find(p => p.type === "row");
+        it("return the column when the box parent is a row and is without arguments when the workspace is not focused", async () => {
+            const allBoxes = workspace.getAllBoxes();
+            const row = allBoxes.find(p => p.type === "row");
             const column = await row.addColumn();
 
             expect(column).to.not.be.undefined;
             expect(column.constructor.name).to.eql("Column");
         });
 
-        it("add the column when the parent is a row and is without arguments when the workspace is not focused", async () => {
-            const allParents = workspace.getAllParents();
-            const row = allParents.find(p => p.type === "row");
+        it("add the column when the box parent is a row and is without arguments when the workspace is not focused", async () => {
+            const allBoxes = workspace.getAllBoxes();
+            const row = allBoxes.find(p => p.type === "row");
             await row.addColumn();
             await workspace.refreshReference();
 
-            const allParentsAfterAdd = workspace.getAllParents();
-            expect(allParentsAfterAdd.length).to.eql(allParents.length + 1);
+            const allBoxesAfterAdd = workspace.getAllBoxes();
+            expect(allBoxesAfterAdd.length).to.eql(allBoxes.length + 1);
         });
     });
 
-    it("reject when the parent is a column and is passed a column definition", (done) => {
-        const allParents = workspace.getAllParents();
-        const row = allParents.find(p => p.type === "column");
+    it("reject when the box parent is a column and is passed a column definition", (done) => {
+        const allBoxes = workspace.getAllBoxes();
+        const row = allBoxes.find(p => p.type === "column");
         row.addColumn({ type: "column", children: [] }).then(() => {
             done("Should not resolve");
         }).catch(() => done());
     });
 
-    it("reject when the parent is a group and is passed a column definition", (done) => {
-        const allParents = workspace.getAllParents();
-        const row = allParents.find(p => p.type === "group");
+    it("reject when the box parent is a group and is passed a column definition", (done) => {
+        const allBoxes = workspace.getAllBoxes();
+        const row = allBoxes.find(p => p.type === "group");
         row.addColumn({ type: "column", children: [] }).then(() => {
             done("Should not resolve");
         }).catch(() => done());
     });
 
-    it("reject when the parent is a row and the arguments is a row definition", (done) => {
-        const allParents = workspace.getAllParents();
-        const row = allParents.find(p => p.type === "row");
+    it("reject when the box parent is a row and the arguments is a row definition", (done) => {
+        const allBoxes = workspace.getAllBoxes();
+        const row = allBoxes.find(p => p.type === "row");
         row.addColumn({ type: "row", children: [] }).then(() => {
             done("Should not resolve");
         }).catch(() => done());
     })
 
-    it("reject when the parent is a row and the arguments is a group definition", (done) => {
-        const allParents = workspace.getAllParents();
-        const row = allParents.find(p => p.type === "row");
+    it("reject when the box parent is a row and the arguments is a group definition", (done) => {
+        const allBoxes = workspace.getAllBoxes();
+        const row = allBoxes.find(p => p.type === "row");
         row.addColumn({ type: "group", children: [] }).then(() => {
             done("Should not resolve");
         }).catch(() => done());
     })
 
-    it("reject when the parent is a row and the arguments is a window definition", (done) => {
-        const allParents = workspace.getAllParents();
-        const row = allParents.find(p => p.type === "row");
+    it("reject when the box parent is a row and the arguments is a window definition", (done) => {
+        const allBoxes = workspace.getAllBoxes();
+        const row = allBoxes.find(p => p.type === "row");
         row.addColumn({ type: "window" }).then(() => {
             done("Should not resolve");
         }).catch(() => done());

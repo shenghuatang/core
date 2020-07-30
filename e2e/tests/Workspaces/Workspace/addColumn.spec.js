@@ -96,7 +96,7 @@ describe('addColumn() Should ', function () {
 
             await workspace.refreshReference();
             const allColumns = workspace.getAllColumns();
-            console.log(columnChildren);
+
             expect(allColumns.length).to.eql(i + 1);
             expect(columnChildren.length).to.eql(0);
         });
@@ -190,7 +190,7 @@ describe('addColumn() Should ', function () {
 
                 await workspace.refreshReference();
                 const allColumns = workspace.getAllColumns();
-                console.log(columnChildren);
+
                 expect(allColumns.length).to.eql(i + 1);
                 expect(columnChildren.length).to.eql(0);
             });

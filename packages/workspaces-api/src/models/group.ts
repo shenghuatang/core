@@ -40,7 +40,7 @@ export class Group implements Glue42Workspaces.Group {
     public get children(): Glue42Workspaces.WorkspaceElement[] {
         return getBase(this).getAllChildren(this);
     }
-    public get parent(): Glue42Workspaces.Workspace | Glue42Workspaces.WorkspaceParent {
+    public get parent(): Glue42Workspaces.Workspace | Glue42Workspaces.WorkspaceBox {
         return getBase(this).getMyParent(this);
     }
     public get frame(): Glue42Workspaces.Frame {

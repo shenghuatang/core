@@ -40,7 +40,7 @@ export class Row implements Glue42Workspaces.Row {
     public get children(): Glue42Workspaces.WorkspaceElement[] {
         return getBase(this).getAllChildren(this);
     }
-    public get parent(): Glue42Workspaces.Workspace | Glue42Workspaces.WorkspaceParent {
+    public get parent(): Glue42Workspaces.Workspace | Glue42Workspaces.WorkspaceBox {
         return getBase(this).getMyParent(this);
     }
     public get frame(): Glue42Workspaces.Frame {
@@ -54,14 +54,14 @@ export class Row implements Glue42Workspaces.Row {
         return getBase(this).addWindow(this, definition, "row");
     }
 
-    public async addGroup(definition?: Glue42Workspaces.ParentDefinition): Promise<Glue42Workspaces.Group> {
+    public async addGroup(definition?: Glue42Workspaces.BoxDefinition): Promise<Glue42Workspaces.Group> {
         if (definition?.type && definition.type !== "group") {
             throw new Error(`Expected a group definition, but received ${definition.type}`);
         }
         return getBase(this).addParent<Glue42Workspaces.Group>(this, "group", "row", definition);
     }
 
-    public async addColumn(definition?: Glue42Workspaces.ParentDefinition): Promise<Glue42Workspaces.Column> {
+    public async addColumn(definition?: Glue42Workspaces.BoxDefinition): Promise<Glue42Workspaces.Column> {
         if (definition?.type && definition.type !== "column") {
             throw new Error(`Expected a column definition, but received ${definition.type}`);
         }

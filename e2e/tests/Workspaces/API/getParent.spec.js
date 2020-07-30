@@ -1,4 +1,4 @@
-describe("getParent() Should", () => {
+describe("getBox() Should", () => {
     const basicConfig = {
         children: [
             {
@@ -52,29 +52,29 @@ describe("getParent() Should", () => {
     });
 
     it("return a promise", () => {
-        const parentPromise = glue.workspaces.getParent(p => p.type === "column");
+        const boxPromise = glue.workspaces.getBox(p => p.type === "column");
 
-        expect(parentPromise.then).to.be.a("function");
-        expect(parentPromise.catch).to.be.a("function");
+        expect(boxPromise.then).to.be.a("function");
+        expect(boxPromise.catch).to.be.a("function");
     });
 
     it("resolve", async () => {
-        await glue.workspaces.getParent(p => p.type === "column");
+        await glue.workspaces.getBox(p => p.type === "column");
     });
 
-    it("return the correct parent", async () => {
-        const firstParent = await glue.workspaces.getParent(p => p.type === "column");
-        const secondParent = await glue.workspaces.getParent(p => p.type === "row");
-        const thirdParent = await glue.workspaces.getParent(p => p.type === "group");
+    it("return the correct box", async () => {
+        const firstBox = await glue.workspaces.getBox(p => p.type === "column");
+        const secondBox = await glue.workspaces.getBox(p => p.type === "row");
+        const thirdBox = await glue.workspaces.getBox(p => p.type === "group");
 
-        expect(firstParent.type).to.eql("column");
-        expect(secondParent.type).to.eql("row");
-        expect(thirdParent.type).to.eql("group");
+        expect(firstBox.type).to.eql("column");
+        expect(secondBox.type).to.eql("row");
+        expect(thirdBox.type).to.eql("group");
     });
 
     Array.from([null, undefined, 42, "42", [], {}]).forEach((input) => {
         it(`reject when the argument is ${JSON.stringify(input)}`, (done) => {
-            glue.workspaces.getParent(input)
+            glue.workspaces.getBox(input)
                 .then(() => done("Should not resolve"))
                 .catch(() => done());
         });

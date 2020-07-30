@@ -1,4 +1,4 @@
-describe("getAllParents() Should", () => {
+describe("getAllBoxes() Should", () => {
     const basicConfig = {
         children: [
             {
@@ -48,29 +48,29 @@ describe("getAllParents() Should", () => {
         await Promise.all(frames.map((f) => f.close()));
     });
 
-    it("return all parents", () => {
-        const parents = workspace.getAllParents();
+    it("return all boxes", () => {
+        const boxes = workspace.getAllBoxes();
 
-        const rows = parents.filter(p => p.type === "row");
-        const columns = parents.filter(p => p.type === "column");
-        const groups = parents.filter(p => p.type === "group");
+        const rows = boxes.filter(p => p.type === "row");
+        const columns = boxes.filter(p => p.type === "column");
+        const groups = boxes.filter(p => p.type === "group");
 
-        expect(parents.length).to.eql(6);
+        expect(boxes.length).to.eql(6);
         expect(rows.length).to.eql(2);
         expect(columns.length).to.eql(3);
         expect(groups.length).to.eql(1);
     });
 
     // Not focused workspace
-    it("return all parents when the workspace is not focused", async () => {
+    it("return all boxes when the workspace is not focused", async () => {
         await glue.workspaces.createWorkspace(basicConfig);
-        const parents = workspace.getAllParents();
+        const boxes = workspace.getAllBoxes();
 
-        const rows = parents.filter(p => p.type === "row");
-        const columns = parents.filter(p => p.type === "column");
-        const groups = parents.filter(p => p.type === "group");
+        const rows = boxes.filter(p => p.type === "row");
+        const columns = boxes.filter(p => p.type === "column");
+        const groups = boxes.filter(p => p.type === "group");
 
-        expect(parents.length).to.eql(6);
+        expect(boxes.length).to.eql(6);
         expect(rows.length).to.eql(2);
         expect(columns.length).to.eql(3);
         expect(groups.length).to.eql(1);
@@ -79,7 +79,7 @@ describe("getAllParents() Should", () => {
     Array.from([null, 42, "42", {}, []]).forEach((input) => {
         it(`throw an error when the input is ${JSON.stringify(input)}`, (done) => {
             try {
-                workspace.getAllParents(input);
+                workspace.getAllBoxes(input);
                 done("Should have thrown an error");
             } catch (error) {
                 done();

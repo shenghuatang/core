@@ -55,7 +55,7 @@ export class BaseController {
         return this.ioc.getModel<"workspace">("workspace", workspaceConfig);
     }
 
-    public async add(type: "container" | "window", parentId: string, parentType: "row" | "column" | "group" | "workspace", definition: Glue42Workspaces.WorkspaceWindowDefinition | Glue42Workspaces.ParentDefinition, frameInstance?: Instance): Promise<AddItemResult> {
+    public async add(type: "container" | "window", parentId: string, parentType: "row" | "column" | "group" | "workspace", definition: Glue42Workspaces.WorkspaceWindowDefinition | Glue42Workspaces.BoxDefinition, frameInstance?: Instance): Promise<AddItemResult> {
         let operationName: string;
         const operationArgs = { definition, parentId, parentType };
 

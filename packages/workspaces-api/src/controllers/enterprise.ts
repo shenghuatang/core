@@ -53,7 +53,7 @@ export class EnterpriseController implements WorkspacesController {
         return await this.base.restoreWorkspace(name, options);
     }
 
-    public async add(type: "container" | "window", parentId: string, parentType: "row" | "column" | "group" | "workspace", definition: Glue42Workspaces.WorkspaceWindowDefinition | Glue42Workspaces.ParentDefinition): Promise<AddItemResult> {
+    public async add(type: "container" | "window", parentId: string, parentType: "row" | "column" | "group" | "workspace", definition: Glue42Workspaces.WorkspaceWindowDefinition | Glue42Workspaces.BoxDefinition): Promise<AddItemResult> {
         return await this.base.add(type, parentId, parentType, definition);
     }
 
@@ -138,12 +138,12 @@ export class EnterpriseController implements WorkspacesController {
         return resultWindow;
     }
 
-    public async getParent(predicate: (parent: Glue42Workspaces.WorkspaceParent) => boolean): Promise<Glue42Workspaces.WorkspaceParent> {
-        let resultParent: Glue42Workspaces.WorkspaceParent;
+    public async getParent(predicate: (parent: Glue42Workspaces.WorkspaceBox) => boolean): Promise<Glue42Workspaces.WorkspaceBox> {
+        let resultParent: Glue42Workspaces.WorkspaceBox;
 
         await this.iterateWorkspaces((wsp, end) => {
 
-            const foundParent = wsp.getParent(predicate);
+            const foundParent = wsp.getBox(predicate);
 
             if (foundParent) {
                 resultParent = foundParent;

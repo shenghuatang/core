@@ -151,11 +151,11 @@ export namespace Glue42Workspaces {
     /** The restore strategy used to open new workspaces from existing layouts. */
     export type RestoreType = "direct" | "delayed" | "lazy";
 
-    /** An object which represent a workspace element. This is an element can be a parent or a workspace window. */
-    export type WorkspaceElement = WorkspaceParent | WorkspaceWindow;
+    /** An object which represent a workspace element. This is an element can be a box or a workspace window. */
+    export type WorkspaceElement = WorkspaceBox | WorkspaceWindow;
 
-    /** An object which represent a workspace parent. This is an element which contains other elements, called children. */
-    export type WorkspaceParent = Row | Column | Group;
+    /** An object which represent a workspace box. This is an element which contains other elements, called children. */
+    export type WorkspaceBox = Row | Column | Group;
 
     /** An object describing the options of the builder. */
     export interface BuilderConfig {
@@ -163,7 +163,7 @@ export namespace Glue42Workspaces {
         type: "workspace" | "row" | "column" | "group";
 
         /** An object describing various options when creating a builder. */
-        definition?: WorkspaceDefinition | ParentDefinition;
+        definition?: WorkspaceDefinition | BoxDefinition;
     }
 
     /** Workspace-specific options. */
@@ -181,7 +181,7 @@ export namespace Glue42Workspaces {
     /** An object describing the possible options when defining a new workspace */
     export interface WorkspaceDefinition {
         /** An array of all the workspace's children which will also be opened. */
-        children?: Array<WorkspaceWindowDefinition | ParentDefinition>;
+        children?: Array<WorkspaceWindowDefinition | BoxDefinition>;
 
         /** An object which will be set as the window context of all windows inside this workspace. */
         context?: any;
@@ -199,13 +199,13 @@ export namespace Glue42Workspaces {
         };
     }
 
-    /** An object describing the possible options when opening a parent inside a workspace. */
-    export interface ParentDefinition {
+    /** An object describing the possible options when opening a box inside a workspace. */
+    export interface BoxDefinition {
         /** The type of the workspace element. */
         type?: "column" | "row" | "group";
 
-        /** An array of all the parent's children which will also be opened. */
-        children?: Array<WorkspaceWindowDefinition | ParentDefinition>;
+        /** An array of all the box's children which will also be opened. */
+        children?: Array<WorkspaceWindowDefinition | BoxDefinition>;
     }
 
     /** An object describing the possible options when opening a window inside a workspace. */
@@ -264,7 +264,7 @@ export namespace Glue42Workspaces {
         /** The position of this window regarding it's siblings */
         positionIndex: number;
 
-        /** A flag showing whether or not the window is maximized within it's parent */
+        /** A flag showing whether or not the window is maximized within it's box */
         isMaximized: boolean;
 
         /** A flag showing whether or not the window's content is loaded */
@@ -411,25 +411,25 @@ export namespace Glue42Workspaces {
         onWindowFocusChange(callback: (window: WorkspaceWindow) => void): Promise<Unsubscribe>;
 
         /**
-         * Notifies when a new parent was added to a workspace part of this frame and returns an unsubscribe function.
+         * Notifies when a new box was added to a workspace part of this frame and returns an unsubscribe function.
          * Not supported in Glue42 Core
-         * @param callback Callback function to handle the event. Receives the added parent as a parameter.
+         * @param callback Callback function to handle the event. Receives the added box as a parameter.
          */
-        onParentAdded(callback: (parent: WorkspaceParent) => void): Promise<Unsubscribe>;
+        onBoxAdded(callback: (box: WorkspaceBox) => void): Promise<Unsubscribe>;
 
         /**
-         * Notifies when a parent was removed from a workspace part of this frame and returns an unsubscribe function.
+         * Notifies when a box was removed from a workspace part of this frame and returns an unsubscribe function.
          * Not supported in Glue42 Core
-         * @param callback Callback function to handle the event. Receives an object containing the ids of the removed parent and the respective workspace and frame as a parameter.
+         * @param callback Callback function to handle the event. Receives an object containing the ids of the removed box and the respective workspace and frame as a parameter.
          */
-        onParentRemoved(callback: (removed: { id: string; workspaceId: string; frameId: string }) => void): Promise<Unsubscribe>;
+        onBoxRemoved(callback: (removed: { id: string; workspaceId: string; frameId: string }) => void): Promise<Unsubscribe>;
 
         /**
-         * Notifies when the contents of a parent inside a workspace part of this frame has changed and returns an unsubscribe function.
+         * Notifies when the contents of a box inside a workspace part of this frame has changed and returns an unsubscribe function.
          * Not supported in Glue42 Core
-         * @param callback Callback function to handle the event. Receives the updated parent as a parameter.
+         * @param callback Callback function to handle the event. Receives the updated box as a parameter.
          */
-        onParentUpdated(callback: (parent: Row | Column | Group) => void): Promise<Unsubscribe>;
+        onBoxUpdated(callback: (box: Row | Column | Group) => void): Promise<Unsubscribe>;
     }
 
     /** An object describing a workspace */
@@ -474,16 +474,16 @@ export namespace Glue42Workspaces {
         saveLayout(name: string): Promise<void>;
 
         /**
-         * Returns the first parent in this workspace, which satisfies the provided predicate.
-         * @param predicate A filtering function (predicate) called for each parent present in this workspace.
+         * Returns the first box in this workspace, which satisfies the provided predicate.
+         * @param predicate A filtering function (predicate) called for each box present in this workspace.
          */
-        getParent(predicate: (parent: WorkspaceParent) => boolean): WorkspaceParent;
+        getBox(predicate: (box: WorkspaceBox) => boolean): WorkspaceBox;
 
         /**
-         * Returns all parents in this workspace, which satisfy the provided predicate. If no predicate was provided, will return all parents.
-         * @param predicate A filtering function (predicate) called for each parent present in this workspace.
+         * Returns all boxes in this workspace, which satisfy the provided predicate. If no predicate was provided, will return all boxes.
+         * @param predicate A filtering function (predicate) called for each box present in this workspace.
          */
-        getAllParents(predicate?: (parent: WorkspaceParent) => boolean): WorkspaceParent[];
+        getAllBoxes(predicate?: (box: WorkspaceBox) => boolean): WorkspaceBox[];
 
         /**
          * Returns the first row in this workspace, which satisfies the provided predicate.
@@ -537,19 +537,19 @@ export namespace Glue42Workspaces {
          * Adds a new row to this workspace.
          * @param definition An object describing the available row settings.
          */
-        addRow(definition?: ParentDefinition): Promise<Row>;
+        addRow(definition?: BoxDefinition): Promise<Row>;
 
         /**
          * Adds a new column to this workspace.
          * @param definition An object describing the available column settings.
          */
-        addColumn(definition?: ParentDefinition): Promise<Column>;
+        addColumn(definition?: BoxDefinition): Promise<Column>;
 
         /**
          * Adds a new group to this workspace.
          * @param definition An object describing the available group settings.
          */
-        addGroup(definition?: ParentDefinition): Promise<Group>;
+        addGroup(definition?: BoxDefinition): Promise<Group>;
 
         /**
          * Adds a new window to this workspace.
@@ -564,8 +564,8 @@ export namespace Glue42Workspaces {
         remove(predicate: (child: WorkspaceElement) => boolean): Promise<void>;
 
         /**
-         * Removes the first immediate child of this parent which satisfies the predicate.
-         * @param predicate A filtering function (predicate) called for immediate child of this parent.
+         * Removes the first immediate child of this workspaces which satisfies the predicate.
+         * @param predicate A filtering function (predicate) called for immediate child of this workspace.
          */
         removeChild(predicate: (child: WorkspaceElement) => boolean): Promise<void>;
 
@@ -631,116 +631,116 @@ export namespace Glue42Workspaces {
         onWindowFocusChange(callback: (window: WorkspaceWindow) => void): Promise<Unsubscribe>;
 
         /**
-         * Notifies when a new parent was added to this workspace and returns an unsubscribe function.
+         * Notifies when a new box was added to this workspace and returns an unsubscribe function.
          * Not supported in Glue42 Core
-         * @param callback Callback function to handle the event. Receives the added parent as a parameter.
+         * @param callback Callback function to handle the event. Receives the added box as a parameter.
          */
-        onParentAdded(callback: (parent: WorkspaceParent) => void): Promise<Unsubscribe>;
+        onBoxAdded(callback: (box: WorkspaceBox) => void): Promise<Unsubscribe>;
 
         /**
-         * Notifies when a parent was removed from this workspace and returns an unsubscribe function.
+         * Notifies when a box was removed from this workspace and returns an unsubscribe function.
          * Not supported in Glue42 Core
-         * @param callback Callback function to handle the event. Receives an object containing the ids of the removed parent and the respective workspace and frame as a parameter.
+         * @param callback Callback function to handle the event. Receives an object containing the ids of the removed box and the respective workspace and frame as a parameter.
          */
-        onParentRemoved(callback: (removed: { id: string; workspaceId: string; frameId: string }) => void): Promise<Unsubscribe>;
+        onBoxRemoved(callback: (removed: { id: string; workspaceId: string; frameId: string }) => void): Promise<Unsubscribe>;
 
         /**
-         * Notifies when the contents of a parent part of this workspace has changed and returns an unsubscribe function.
+         * Notifies when the contents of a box part of this workspace has changed and returns an unsubscribe function.
          * Not supported in Glue42 Core
-         * @param callback Callback function to handle the event. Receives the updated parent as a parameter.
+         * @param callback Callback function to handle the event. Receives the updated box as a parameter.
          */
-        onParentUpdated(callback: (parent: Row | Column | Group) => void): Promise<Unsubscribe>;
+        onBoxUpdated(callback: (box: Row | Column | Group) => void): Promise<Unsubscribe>;
     }
 
-    /** An object containing the summary of a workspace parent */
-    export interface ParentSummary {
+    /** An object containing the summary of a workspace box */
+    export interface BoxSummary {
 
-        /** An unique string identifier of this parent */
+        /** An unique string identifier of this box */
         id: string;
 
-        /** The unique string identifier of the frame containing this parent */
+        /** The unique string identifier of the frame containing this box */
         frameId: string;
 
-        /** The unique string identifier of the workspace containing this parent */
+        /** The unique string identifier of the workspace containing this box */
         workspaceId: string;
 
-        /** An number representing the positing of this parent relative to it's siblings */
+        /** An number representing the positing of this box relative to it's siblings */
         positionIndex: number;
     }
 
-    /** An object describing a workspace parent */
-    export interface Parent extends ParentSummary {
+    /** An object describing a workspace box */
+    export interface Box extends BoxSummary {
 
-        /** A collection containing the immediate children of this parent */
+        /** A collection containing the immediate children of this box */
         children: WorkspaceElement[];
 
-        /** An object representing this parent's parent */
-        parent: Workspace | WorkspaceParent;
+        /** An object representing this box's parent */
+        parent: Workspace | WorkspaceBox;
 
-        /** An object representing the frame containing this parent */
+        /** An object representing the frame containing this box */
         frame: Frame;
 
-        /** An object representing the workspace containing this parent */
+        /** An object representing the workspace containing this box */
         workspace: Workspace;
 
         /**
-         * Opens a new window inside this parent and loads it's content.
+         * Opens a new window inside this box and loads it's content.
          * @param definition An object describing the requested window.
          */
         addWindow(definition: WorkspaceWindowDefinition): Promise<WorkspaceWindow>;
 
         /**
-         * Adds a new group parent to this parent.
+         * Adds a new group box to this box.
          * @param definition An object describing the type of the requested builder, alongside other settings.
          */
-        addGroup(definition?: ParentDefinition | ParentBuilder): Promise<Group>;
+        addGroup(definition?: BoxDefinition | BoxBuilder): Promise<Group>;
 
         /**
-         * Adds a new column parent to this parent.
+         * Adds a new column box to this box.
          * @param definition An object describing the type of the requested builder, alongside other settings.
          */
-        addColumn(definition?: ParentDefinition | ParentBuilder): Promise<Column>;
+        addColumn(definition?: BoxDefinition | BoxBuilder): Promise<Column>;
 
         /**
-         * Adds a new row parent to this parent.
+         * Adds a new row box to this box.
          * @param definition An object describing the type of the requested builder, alongside other settings.
          */
-        addRow(definition?: ParentDefinition | ParentBuilder): Promise<Row>;
+        addRow(definition?: BoxDefinition | BoxBuilder): Promise<Row>;
 
         /**
-         * Removes the first immediate child of this parent which satisfies the predicate.
-         * @param predicate A filtering function (predicate) called for immediate child of this parent.
+         * Removes the first immediate child of this box which satisfies the predicate.
+         * @param predicate A filtering function (predicate) called for immediate child of this box.
          */
         removeChild(predicate: (child: WorkspaceElement) => boolean): Promise<void>;
 
         /**
-         * Maximizes this parent relative to it's parent.
+         * Maximizes this box relative to it's parent box.
          */
         maximize(): Promise<void>;
 
         /**
-         * Restores this parent, if previously maximized.
+         * Restores this box, if previously maximized.
          */
         restore(): Promise<void>;
 
         /**
-         * Closes this parent all of it's children.
+         * Closes this box all of it's children.
          */
         close(): Promise<void>;
     }
 
-    /** An object describing a row type workspace parent */
-    export interface Row extends Parent {
+    /** An object describing a row type workspace box */
+    export interface Row extends Box {
         type: "row";
     }
 
-    /** An object describing a column type workspace parent */
-    export interface Column extends Parent {
+    /** An object describing a column type workspace box */
+    export interface Column extends Box {
         type: "column";
     }
 
-    /** An object describing a group type workspace parent */
-    export interface Group extends Parent {
+    /** An object describing a group type workspace box */
+    export interface Group extends Box {
         type: "group";
     }
 
@@ -753,8 +753,8 @@ export namespace Glue42Workspaces {
         /** An object representing the frame, which contains this window */
         frame: Frame;
 
-        /** An object representing the parent, which contains this window */
-        parent: Workspace | WorkspaceParent;
+        /** An object representing the parent box, which contains this window */
+        parent: Workspace | WorkspaceBox;
 
         /**
          * Forces a window, which was added to the workspace to load it's contents.
@@ -778,7 +778,7 @@ export namespace Glue42Workspaces {
         setTitle(title: string): Promise<void>;
 
         /**
-         * Maximizes the workspace window relative to it's parent.
+         * Maximizes the workspace window relative to it's parent box.
          */
         maximize(): Promise<void>;
 
@@ -798,10 +798,10 @@ export namespace Glue42Workspaces {
         getGdWindow(): any;
 
         /**
-         * Moves the workspace window to a new parent. In Glue42 Core this parent must be part of the same frame.
-         * @param parent An object describing the new parent of the window.
+         * Moves the workspace window to a new box. In Glue42 Core this box must be part of the same frame.
+         * @param box An object describing the new box of the window.
          */
-        moveTo(parent: WorkspaceParent): Promise<void>;
+        moveTo(box: WorkspaceBox): Promise<void>;
 
         /**
          * Notifies when this window was added to any workspace in any frame and returns an unsubscribe function.
@@ -820,10 +820,10 @@ export namespace Glue42Workspaces {
         onLoaded(callback: () => void): Promise<Unsubscribe>;
 
         /**
-         * Notifies when the parent of this window has changed.
+         * Notifies when the parent box of this window has changed.
          * @param callback Callback function to handle the event. Receives the new parent object as a parameter.
          */
-        onParentChanged(callback: (newParent: WorkspaceParent | Workspace) => void): Promise<Unsubscribe>;
+        onParentChanged(callback: (newParent: WorkspaceBox | Workspace) => void): Promise<Unsubscribe>;
 
         /**
          * Notifies when this window was removed from the workspace.
@@ -835,25 +835,25 @@ export namespace Glue42Workspaces {
     /** An object describing a builder user to create workspaces */
     export interface WorkspaceBuilder {
         /**
-         * Adds a new row parent to the calling parent. Returns the new row parent.
+         * Adds a new row to the calling workspace. Returns the new row.
          * @param config An object describing the type of the requested builder, alongside other settings.
          */
-        addRow(definition?: ParentDefinition): ParentBuilder;
+        addRow(definition?: BoxDefinition): BoxBuilder;
 
         /**
-         * Adds a new column parent to the calling parent. Returns the new column parent.
+         * Adds a new column to the calling workspace. Returns the new column.
          * @param config An object describing the type of the requested builder, alongside other settings.
          */
-        addColumn(definition?: ParentDefinition): ParentBuilder;
+        addColumn(definition?: BoxDefinition): BoxBuilder;
 
         /**
-         * Adds a new group parent to the calling parent. Returns the new group parent.
+         * Adds a new group to the calling workspace. Returns the new group.
          * @param config An object describing the type of the requested builder, alongside other settings.
          */
-        addGroup(definition?: ParentDefinition): ParentBuilder;
+        addGroup(definition?: BoxDefinition): BoxBuilder;
 
         /**
-         * Adds a new window to the calling parent. Returns the immediate parent of the window.
+         * Adds a new window to the calling workspace. Returns the calling workspace.
          * @param config An object describing the requested window.
          */
         addWindow(definition: WorkspaceWindowDefinition): WorkspaceBuilder;
@@ -865,36 +865,36 @@ export namespace Glue42Workspaces {
         create(config?: WorkspaceCreateConfig): Promise<Workspace>;
     }
 
-    /** An object describing a builder user to create workspace parents */
-    export interface ParentBuilder {
+    /** An object describing a builder used to create workspace boxes */
+    export interface BoxBuilder {
         /**
-         * Adds a new row parent to the calling parent. Returns the new row parent.
+         * Adds a new row to the calling box. Returns the new row.
          * @param config An object describing the type of the requested builder, alongside other settings.
          */
-        addRow(definition?: ParentDefinition): ParentBuilder;
+        addRow(definition?: BoxDefinition): BoxBuilder;
 
         /**
-         * Adds a new column parent to the calling parent. Returns the new column parent.
+         * Adds a new column to the calling box. Returns the new column.
          * @param config An object describing the type of the requested builder, alongside other settings.
          */
-        addColumn(definition?: ParentDefinition): ParentBuilder;
+        addColumn(definition?: BoxDefinition): BoxBuilder;
 
         /**
-         * Adds a new group parent to the calling parent. Returns the new group parent.
+         * Adds a new group to the calling box. Returns the new group.
          * @param config An object describing the type of the requested builder, alongside other settings.
          */
-        addGroup(definition?: ParentDefinition): ParentBuilder;
+        addGroup(definition?: BoxDefinition): BoxBuilder;
 
         /**
-         * Adds a new window to the calling parent. Returns the immediate parent of the window.
+         * Adds a new window to the calling box. Returns the immediate parent box of the window.
          * @param config An object describing the requested window.
          */
-        addWindow(definition: WorkspaceWindowDefinition): ParentBuilder;
+        addWindow(definition: WorkspaceWindowDefinition): BoxBuilder;
 
         /**
-         * Returns the JSON object which describes the full structure of the parent.
+         * Returns the JSON object which describes the full structure of the box.
          */
-        serialize(): ParentDefinition;
+        serialize(): BoxDefinition;
     }
 
     /** A configuration object used to save a current workspace as a layout */
@@ -969,11 +969,11 @@ export namespace Glue42Workspaces {
         inWorkspace(): Promise<boolean>;
 
         /**
-         * Gets either a workspace or a parent builder depending on the provided type inside the config object.
+         * Gets either a workspace or a box builder depending on the provided type inside the config object.
          * This builder is used to dynamically construct a workspace runtime.
          * @param config An object describing the type of the requested builder, alongside other settings.
          */
-        getBuilder(config: BuilderConfig): WorkspaceBuilder | ParentBuilder;
+        getBuilder(config: BuilderConfig): WorkspaceBuilder | BoxBuilder;
 
         /**
          * Returns the frame instance of the calling window. Throws an error if the calling window is not part of a workspace.
@@ -1024,11 +1024,11 @@ export namespace Glue42Workspaces {
         getWindow(predicate: (workspaceWindow: WorkspaceWindow) => boolean): Promise<WorkspaceWindow>;
 
         /**
-         * Returns the instance of the first parent, which satisfies the provided predicate.
+         * Returns the instance of the first box, which satisfies the provided predicate.
          * This function will search recursively in all open workspaces.
-         * @param predicate A filtering function (predicate) called for each parent in each open workspace.
+         * @param predicate A filtering function (predicate) called for each box in each open workspace.
          */
-        getParent(predicate: (parent: WorkspaceParent) => boolean): Promise<WorkspaceParent>;
+        getBox(predicate: (box: WorkspaceBox) => boolean): Promise<WorkspaceBox>;
 
         /**
          * Opens a new workspace by restoring a previously saved workspace layout.
@@ -1136,17 +1136,17 @@ export namespace Glue42Workspaces {
         onWindowFocusChange(callback: (workspaceWindow: WorkspaceWindow) => void): Promise<Unsubscribe>;
 
         /**
-         * Notifies when a new parent was added to any workspace in any of the opened frames and returns an unsubscribe function.
+         * Notifies when a new box was added to any workspace in any of the opened frames and returns an unsubscribe function.
          * Not supported in Glue42 Core
-         * @param callback Callback function to handle the event. Receives the added parent as a parameter.
+         * @param callback Callback function to handle the event. Receives the added box as a parameter.
          */
-        onParentAdded(callback: (parent: WorkspaceParent) => void): Promise<Unsubscribe>;
+        onBoxAdded(callback: (box: WorkspaceBox) => void): Promise<Unsubscribe>;
 
         /**
-         * Notifies when a parent was removed from any workspace in any of the opened frames and returns an unsubscribe function.
+         * Notifies when a box was removed from any workspace in any of the opened frames and returns an unsubscribe function.
          * Not supported in Glue42 Core
-         * @param callback Callback function to handle the event. Receives an object containing the ids of the removed parent and the respective workspace and frame as a parameter.
+         * @param callback Callback function to handle the event. Receives an object containing the ids of the removed box and the respective workspace and frame as a parameter.
          */
-        onParentRemoved(callback: (removed: { id: string; workspaceId: string; frameId: string }) => void): Promise<Unsubscribe>;
+        onBoxRemoved(callback: (removed: { id: string; workspaceId: string; frameId: string }) => void): Promise<Unsubscribe>;
     }
 }

@@ -104,7 +104,7 @@ export class Base {
         return getWindowFromPlacementId(this, operationResult.itemId);
     }
 
-    public async addParent<T>(model: AllParentTypes, typeToAdd: SubParent, parentType: AllParent, definition?: Glue42Workspaces.ParentDefinition | ParentBuilder): Promise<T> {
+    public async addParent<T>(model: AllParentTypes, typeToAdd: SubParent, parentType: AllParent, definition?: Glue42Workspaces.BoxDefinition | ParentBuilder): Promise<T> {
         const parentDefinition = this.transformDefinition(typeToAdd, definition);
         const controller = getData(this, model).controller;
 
@@ -112,13 +112,13 @@ export class Base {
 
         if (model instanceof Workspace) {
             await model.refreshReference();
-            return model.getParent((parent) => parent.id === newParentId) as unknown as T;
+            return model.getBox((parent) => parent.id === newParentId) as unknown as T;
         }
 
         const myWorkspace = this.getMyWorkspace(model);
         await myWorkspace.refreshReference();
 
-        return myWorkspace.getParent((parent) => parent.id === newParentId) as unknown as T;
+        return myWorkspace.getBox((parent) => parent.id === newParentId) as unknown as T;
     }
 
     public async removeChild(model: AllParentTypes, predicate: (child: Child) => boolean): Promise<void> {
@@ -165,8 +165,8 @@ export class Base {
         }
     }
 
-    private transformDefinition(type: "group" | "row" | "column", definition?: Glue42Workspaces.ParentDefinition | ParentBuilder): Glue42Workspaces.ParentDefinition {
-        let parentDefinition: Glue42Workspaces.ParentDefinition;
+    private transformDefinition(type: "group" | "row" | "column", definition?: Glue42Workspaces.BoxDefinition | ParentBuilder): Glue42Workspaces.BoxDefinition {
+        let parentDefinition: Glue42Workspaces.BoxDefinition;
 
         if (typeof definition === "undefined") {
             parentDefinition = { type, children: [] };

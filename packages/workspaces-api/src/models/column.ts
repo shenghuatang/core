@@ -40,7 +40,7 @@ export class Column implements Glue42Workspaces.Column {
     public get children(): Glue42Workspaces.WorkspaceElement[] {
         return getBase(this).getAllChildren(this);
     }
-    public get parent(): Glue42Workspaces.Workspace | Glue42Workspaces.WorkspaceParent {
+    public get parent(): Glue42Workspaces.Workspace | Glue42Workspaces.WorkspaceBox {
         return getBase(this).getMyParent(this);
     }
     public get frame(): Glue42Workspaces.Frame {
@@ -54,19 +54,19 @@ export class Column implements Glue42Workspaces.Column {
         return getBase(this).addWindow(this, definition, "column");
     }
 
-    public async addGroup(definition?: Glue42Workspaces.ParentDefinition): Promise<Glue42Workspaces.Group> {
+    public async addGroup(definition?: Glue42Workspaces.BoxDefinition): Promise<Glue42Workspaces.Group> {
         if (definition?.type && definition.type !== "group") {
             throw new Error(`Expected a group definition, but received ${definition.type}`);
         }
         return getBase(this).addParent<Glue42Workspaces.Group>(this, "group", "column", definition);
     }
 
-    public async addColumn(definition?: Glue42Workspaces.ParentDefinition): Promise<Column> {
+    public async addColumn(definition?: Glue42Workspaces.BoxDefinition): Promise<Column> {
         throw new Error("Adding columns as column children is not supported");
         return getBase(this).addParent<Column>(this, "column", "column", definition);
     }
 
-    public async addRow(definition?: Glue42Workspaces.ParentDefinition): Promise<Glue42Workspaces.Row> {
+    public async addRow(definition?: Glue42Workspaces.BoxDefinition): Promise<Glue42Workspaces.Row> {
         if (definition?.type && definition.type !== "row") {
             throw new Error(`Expected a row definition, but received ${definition.type}`);
         }

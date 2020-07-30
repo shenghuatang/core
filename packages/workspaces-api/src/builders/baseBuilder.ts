@@ -20,7 +20,7 @@ export class BaseBuilder {
         });
     }
 
-    public add(type: "row" | "column" | "group", children: ChildBuilder[], definition?: Glue42Workspaces.ParentDefinition): ParentBuilder {
+    public add(type: "row" | "column" | "group", children: ChildBuilder[], definition?: Glue42Workspaces.BoxDefinition): ParentBuilder {
         const validatedDefinition = parentDefinitionDecoder.runWithException(definition);
 
         const childBuilder = this.getBuilder({ type, definition: validatedDefinition }) as ParentBuilder;

@@ -9,7 +9,7 @@ export interface WorkspacesController {
     checkIsInSwimlane(windowId: string): Promise<boolean>;
     createWorkspace(definition: Glue42Workspaces.WorkspaceDefinition, saveConfig?: Glue42Workspaces.WorkspaceCreateConfig): Promise<Glue42Workspaces.Workspace>;
     restoreWorkspace(name: string, options?: Glue42Workspaces.RestoreWorkspaceConfig): Promise<Glue42Workspaces.Workspace>;
-    add(type: "container" | "window", parentId: string, parentType: "row" | "column" | "group" | "workspace", definition: Glue42Workspaces.WorkspaceWindowDefinition | Glue42Workspaces.ParentDefinition): Promise<AddItemResult>;
+    add(type: "container" | "window", parentId: string, parentType: "row" | "column" | "group" | "workspace", definition: Glue42Workspaces.WorkspaceWindowDefinition | Glue42Workspaces.BoxDefinition): Promise<AddItemResult>;
     processLocalSubscription(config: SubscriptionConfig, levelId: string): Promise<Glue42Workspaces.Unsubscribe>;
     processGlobalSubscription(callback: (callbackData: unknown) => void, streamType: StreamType, action: StreamAction): Promise<Glue42Workspaces.Unsubscribe>;
     getFrame(selector: { windowId?: string; predicate?: (frame: Glue42Workspaces.Frame) => boolean }): Promise<Glue42Workspaces.Frame>;
@@ -18,7 +18,7 @@ export interface WorkspacesController {
     getWorkspaces(predicate?: (workspace: Glue42Workspaces.Workspace) => boolean): Promise<Glue42Workspaces.Workspace[]>;
     getAllWorkspaceSummaries(): Promise<Glue42Workspaces.WorkspaceSummary[]>;
     getWindow(predicate: (swimlaneWindow: Glue42Workspaces.WorkspaceWindow) => boolean): Promise<Glue42Workspaces.WorkspaceWindow>;
-    getParent(predicate: (parent: Glue42Workspaces.WorkspaceParent) => boolean): Promise<Glue42Workspaces.WorkspaceParent>;
+    getParent(predicate: (parent: Glue42Workspaces.WorkspaceBox) => boolean): Promise<Glue42Workspaces.WorkspaceBox>;
     getLayoutSummaries(): Promise<Glue42Workspaces.WorkspaceLayoutSummary[]>;
     deleteLayout(name: string): Promise<void>;
     exportLayout(predicate?: (layout: Glue42Workspaces.WorkspaceLayout) => boolean): Promise<Glue42Workspaces.WorkspaceLayout[]>;

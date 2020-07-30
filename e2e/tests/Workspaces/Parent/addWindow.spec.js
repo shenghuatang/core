@@ -52,8 +52,8 @@ describe("addWindow() Should", () => {
 
     Array.from(["row", "column", "group"]).forEach((parentType) => {
         it(`return the added window when the parent is a ${parentType}`, async () => {
-            const parent = workspace.getAllParents().find(p => p.type === parentType);
-            const window = await parent.addWindow({
+            const box = workspace.getAllBoxes().find(p => p.type === parentType);
+            const window = await box.addWindow({
                 type: "window",
                 appName: "dummyApp"
             });
@@ -63,8 +63,8 @@ describe("addWindow() Should", () => {
         });
 
         it(`add the window when the parent is ${parentType}`, async () => {
-            const parent = workspace.getAllParents().find(p => p.type === parentType);
-            const window = await parent.addWindow({
+            const box = workspace.getAllBoxes().find(p => p.type === parentType);
+            const window = await box.addWindow({
                 type: "window",
                 appName: "dummyApp"
             });
@@ -77,9 +77,9 @@ describe("addWindow() Should", () => {
         });
 
         it(`update the window context when a context is passed and the parent is ${parentType}`, async () => {
-            const parent = workspace.getAllParents().find(p => p.type === parentType);
+            const box = workspace.getAllBoxes().find(p => p.type === parentType);
             const context = { test: gtf.getWindowName("workspaces") };
-            const window = await parent.addWindow({
+            const window = await box.addWindow({
                 type: "window",
                 appName: "dummyApp",
                 context
@@ -103,8 +103,8 @@ describe("addWindow() Should", () => {
             });
 
             it(`return the added window when the parent is a ${parentType} and the workspace is not focused`, async () => {
-                const parent = workspace.getAllParents().find(p => p.type === parentType);
-                const window = await parent.addWindow({
+                const box = workspace.getAllBoxes().find(p => p.type === parentType);
+                const window = await box.addWindow({
                     type: "window",
                     appName: "dummyApp"
                 });
@@ -114,8 +114,8 @@ describe("addWindow() Should", () => {
             });
 
             it(`add the window when the parent is ${parentType} and the workspace is not focused`, async () => {
-                const parent = workspace.getAllParents().find(p => p.type === parentType);
-                const window = await parent.addWindow({
+                const box = workspace.getAllBoxes().find(p => p.type === parentType);
+                const window = await box.addWindow({
                     type: "window",
                     appName: "dummyApp"
                 });
@@ -128,9 +128,9 @@ describe("addWindow() Should", () => {
             });
 
             it(`update the window context when a context is passed and the parent is ${parentType} and the workspace is not focused`, async () => {
-                const parent = workspace.getAllParents().find(p => p.type === parentType);
+                const box = workspace.getAllBoxes().find(p => p.type === parentType);
                 const context = { test: gtf.getWindowName("workspaces") };
-                const window = await parent.addWindow({
+                const window = await box.addWindow({
                     type: "window",
                     appName: "dummyApp",
                     context
@@ -151,8 +151,8 @@ describe("addWindow() Should", () => {
 
         Array.from(["42", 42, [], {}, undefined, null]).forEach((input) => {
             it(`reject when the parent is ${parentType} and the argument is ${JSON.stringify(input)}`, (done) => {
-                const parent = workspace.getAllParents().find(p => p.type === parentType);
-                parent.addWindow(input)
+                const box = workspace.getAllBoxes().find(p => p.type === parentType);
+                box.addWindow(input)
                     .then(() => done("Should not resolve"))
                     .catch(() => done());
             });

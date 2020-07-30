@@ -39,7 +39,6 @@ describe("what if? ", () => {
 
         glue.interop
             .register("G42Core.Hello", () => {
-                console.log("CALLED");
                 done();
             })
             .then(() => {

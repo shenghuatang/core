@@ -56,7 +56,7 @@ describe("properties: ", () => {
     describe("type: ", () => {
         Array.from(["group", "column", "row"]).forEach((parent) => {
             it(`Should be "${parent}" when the parent is a ${parent}`, () => {
-                const currParent = workspace.getParent(p => p.type === parent);
+                const currParent = workspace.getBox(p => p.type === parent);
 
                 expect(currParent.type).to.eql(parent);
             });
@@ -67,7 +67,7 @@ describe("properties: ", () => {
         Array.from(["group", "column", "row"]).forEach((parent) => {
 
             it(`Should not be undefined when the parent is a ${parent}`, () => {
-                const currParent = workspace.getParent(p => p.type === parent);
+                const currParent = workspace.getBox(p => p.type === parent);
 
                 expect(currParent.id).to.not.be.undefined;
                 expect(currParent.id.length).to.not.eql(0);
@@ -80,13 +80,13 @@ describe("properties: ", () => {
         Array.from(["group", "column", "row"]).forEach((parent) => {
 
             it(`Should be correct when the parent is a ${parent}`, () => {
-                const currParent = workspace.getParent(p => p.type === parent);
+                const currParent = workspace.getBox(p => p.type === parent);
 
                 expect(currParent.frameId).to.eql(workspace.frameId);
             });
 
             it(`Should not be undefined when the parent is a ${parent}`, () => {
-                const currParent = workspace.getParent(p => p.type === parent);
+                const currParent = workspace.getBox(p => p.type === parent);
 
                 expect(currParent.frameId).to.not.be.undefined;
                 expect(currParent.frameId.length).to.not.eql(0);
@@ -99,13 +99,13 @@ describe("properties: ", () => {
         Array.from(["group", "column", "row"]).forEach((parent) => {
 
             it(`Should be correct when the parent is a ${parent}`, () => {
-                const currParent = workspace.getParent(p => p.type === parent);
+                const currParent = workspace.getBox(p => p.type === parent);
 
                 expect(currParent.workspaceId).to.eql(workspace.id);
             });
 
             it(`Should not be undefined when the parent is a ${parent}`, () => {
-                const currParent = workspace.getParent(p => p.type === parent);
+                const currParent = workspace.getBox(p => p.type === parent);
 
                 expect(currParent.workspaceId).to.not.be.undefined;
                 expect(currParent.workspaceId.length).to.not.eql(0);
@@ -185,28 +185,28 @@ describe("properties: ", () => {
         });
 
         it("return the immediate children when parent is a group", () => {
-            const groupUnderTest = workspace.getParent(p => p.type == "group");
+            const groupUnderTest = workspace.getBox(p => p.type == "group");
             const allChildren = groupUnderTest.children;
 
             expect(allChildren.length).to.eql(2);
         });
 
         it("return the immediate children when the parent is a row", () => {
-            const rowUnderTest = workspace.getParent(p => p.type == "row" && p.children.length === 3);
+            const rowUnderTest = workspace.getBox(p => p.type == "row" && p.children.length === 3);
             const allChildren = rowUnderTest.children;
 
             expect(allChildren.length).to.eql(3);
         });
 
         it("return the immediate children when the parent is a column", () => {
-            const columnUnderTest = workspace.getParent(p => p.type == "column" && p.children.length === 2);
+            const columnUnderTest = workspace.getBox(p => p.type == "column" && p.children.length === 2);
             const allChildren = columnUnderTest.children;
 
             expect(allChildren.length).to.eql(2);
         });
 
         it("return the correct children when the parent is a group", () => {
-            const groupUnderTest = workspace.getParent(p => p.type == "group");
+            const groupUnderTest = workspace.getBox(p => p.type == "group");
             const allChildren = groupUnderTest.children;
 
             const areAllChildrenWindows = allChildren.every(c => c.type === "window");
@@ -215,7 +215,7 @@ describe("properties: ", () => {
         });
 
         it("return the correct children when the parent is a row", () => {
-            const rowUnderTest = workspace.getParent(p => p.type == "row" && p.children.length === 3);
+            const rowUnderTest = workspace.getBox(p => p.type == "row" && p.children.length === 3);
             const allChildren = rowUnderTest.children;
 
             const areAllChildrenColumns = allChildren.every(c => c.type === "column");
@@ -224,7 +224,7 @@ describe("properties: ", () => {
         });
 
         it("return the correct children when the parent is a column", () => {
-            const columnUnderTest = workspace.getParent(p => p.type == "column" && p.children.length === 2);
+            const columnUnderTest = workspace.getBox(p => p.type == "column" && p.children.length === 2);
             const allChildren = columnUnderTest.children;
 
             const areAllChildrenWindows = allChildren.every(c => c.type === "window");
@@ -238,28 +238,28 @@ describe("properties: ", () => {
             });
 
             it("return the immediate children when parent is a group and the workspace is not focused", () => {
-                const groupUnderTest = workspace.getParent(p => p.type == "group");
+                const groupUnderTest = workspace.getBox(p => p.type == "group");
                 const allChildren = groupUnderTest.children;
 
                 expect(allChildren.length).to.eql(2);
             });
 
             it("return the immediate children when the parent is a row and the workspace is not focused", () => {
-                const rowUnderTest = workspace.getParent(p => p.type == "row" && p.children.length === 3);
+                const rowUnderTest = workspace.getBox(p => p.type == "row" && p.children.length === 3);
                 const allChildren = rowUnderTest.children;
 
                 expect(allChildren.length).to.eql(3);
             });
 
             it("return the immediate children when the parent is a column and the workspace is not focused", () => {
-                const columnUnderTest = workspace.getParent(p => p.type == "column" && p.children.length === 2);
+                const columnUnderTest = workspace.getBox(p => p.type == "column" && p.children.length === 2);
                 const allChildren = columnUnderTest.children;
 
                 expect(allChildren.length).to.eql(2);
             });
 
             it("return the correct children when the parent is a group and the workspace is not focused", () => {
-                const groupUnderTest = workspace.getParent(p => p.type == "group");
+                const groupUnderTest = workspace.getBox(p => p.type == "group");
                 const allChildren = groupUnderTest.children;
 
                 const areAllChildrenWindows = allChildren.every(c => c.type === "window");
@@ -268,7 +268,7 @@ describe("properties: ", () => {
             });
 
             it("return the correct children when the parent is a row and the workspace is not focused", () => {
-                const rowUnderTest = workspace.getParent(p => p.type == "row" && p.children.length === 3);
+                const rowUnderTest = workspace.getBox(p => p.type == "row" && p.children.length === 3);
                 const allChildren = rowUnderTest.children;
 
                 const areAllChildrenColumns = allChildren.every(c => c.type === "column");
@@ -277,7 +277,7 @@ describe("properties: ", () => {
             });
 
             it("return the correct children when the parent is a column and the workspace is not focused", () => {
-                const columnUnderTest = workspace.getParent(p => p.type == "column" && p.children.length === 2);
+                const columnUnderTest = workspace.getBox(p => p.type == "column" && p.children.length === 2);
                 const allChildren = columnUnderTest.children;
 
                 const areAllChildrenWindows = allChildren.every(c => c.type === "window");
@@ -342,21 +342,21 @@ describe("properties: ", () => {
         });
 
         it("return the correct frame when the parent is a row", () => {
-            const row = workspace.getAllParents().find(p => p.type === "row");
+            const row = workspace.getAllBoxes().find(p => p.type === "row");
             const frame = row.frame;
 
             expect(frame.id).to.eql(workspace.frameId);
         });
 
         it("return the correct frame when the parent is a column", () => {
-            const column = workspace.getAllParents().find(p => p.type === "column");
+            const column = workspace.getAllBoxes().find(p => p.type === "column");
             const frame = column.frame;
 
             expect(frame.id).to.eql(workspace.frameId);
         });
 
         it("return the correct frame when the parent is a group", () => {
-            const group = workspace.getAllParents().find(p => p.type === "group");
+            const group = workspace.getAllBoxes().find(p => p.type === "group");
             const frame = group.frame;
 
             expect(frame.id).to.eql(workspace.frameId);
@@ -434,14 +434,14 @@ describe("properties: ", () => {
         });
 
         it("return the parent when the target is a group", () => {
-            const groupUnderTest = workspace.getParent(p => p.type == "group");
+            const groupUnderTest = workspace.getBox(p => p.type == "group");
             const myParent = groupUnderTest.parent;
 
             expect(myParent.type).to.eql("column");
         });
 
         it("return the parent when the target is a row", () => {
-            const rowUnderTest = workspace.getParent(p => p.type == "row" && p.children.length === 3);
+            const rowUnderTest = workspace.getBox(p => p.type == "row" && p.children.length === 3);
             const myParent = rowUnderTest.parent;
 
             // to be a workspace
@@ -449,7 +449,7 @@ describe("properties: ", () => {
         });
 
         it("return the parent when the target is a column", () => {
-            const columnUnderTest = workspace.getParent(p => p.type == "column" && p.children.length === 2);
+            const columnUnderTest = workspace.getBox(p => p.type == "column" && p.children.length === 2);
             const myParent = columnUnderTest.parent;
 
             expect(myParent.type).to.eql("row");
@@ -461,14 +461,14 @@ describe("properties: ", () => {
             });
 
             it("return the parent when the target is a group and workspace is not focused", () => {
-                const groupUnderTest = workspace.getParent(p => p.type == "group");
+                const groupUnderTest = workspace.getBox(p => p.type == "group");
                 const myParent = groupUnderTest.parent;
 
                 expect(myParent.type).to.eql("column");
             });
 
             it("return the parent when the target is a row and workspace is not focused", () => {
-                const rowUnderTest = workspace.getParent(p => p.type == "row" && p.children.length === 3);
+                const rowUnderTest = workspace.getBox(p => p.type == "row" && p.children.length === 3);
                 const myParent = rowUnderTest.parent;
 
                 // to be a workspace
@@ -476,7 +476,7 @@ describe("properties: ", () => {
             });
 
             it("return the parent when the target is a column and workspace is not focused", () => {
-                const columnUnderTest = workspace.getParent(p => p.type == "column" && p.children.length === 2);
+                const columnUnderTest = workspace.getBox(p => p.type == "column" && p.children.length === 2);
                 const myParent = columnUnderTest.parent;
 
                 expect(myParent.type).to.eql("row");
@@ -539,21 +539,21 @@ describe("properties: ", () => {
         });
     
         it("return the correct workspace when the parent is a row", () => {
-            const row = workspace.getAllParents().find(p => p.type === "row");
+            const row = workspace.getAllBoxes().find(p => p.type === "row");
             const resultWorkspace = row.workspace;
     
             expect(resultWorkspace.id).to.eql(workspace.id);
         });
     
         it("return the correct workspace when the parent is a column", () => {
-            const column = workspace.getAllParents().find(p => p.type === "column");
+            const column = workspace.getAllBoxes().find(p => p.type === "column");
             const resultWorkspace = column.workspace;
     
             expect(resultWorkspace.id).to.eql(workspace.id);
         });
     
         it("return the correct workspace when the parent is a group", () => {
-            const group = workspace.getAllParents().find(p => p.type === "group");
+            const group = workspace.getAllBoxes().find(p => p.type === "group");
             const resultWorkspace = group.workspace;
     
             expect(resultWorkspace.id).to.eql(workspace.id);

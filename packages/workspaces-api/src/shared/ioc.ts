@@ -179,7 +179,7 @@ export class IoC {
             case "row":
             case "column":
             case "group": {
-                (config.definition as Glue42Workspaces.ParentDefinition).type = config.type;
+                (config.definition as Glue42Workspaces.BoxDefinition).type = config.type;
                 return new ParentBuilder(config.definition, baseBuilder);
             }
             default: throw new Error(`Unexpected Builder creation error, provided config: ${JSON.stringify(config)}`);

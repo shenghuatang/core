@@ -1,4 +1,4 @@
-describe("getParent() Should", () => {
+describe("getBox() Should", () => {
     const basicConfig = {
         children: [
             {
@@ -48,9 +48,9 @@ describe("getParent() Should", () => {
         await Promise.all(frames.map((f) => f.close()));
     });
 
-    it("iterate over all parents", () => {
+    it("iterate over all boxes", () => {
         let iterations = 0;
-        workspace.getParent((p) => {
+        workspace.getBox((p) => {
             iterations += 1;
             return false;
         });
@@ -58,18 +58,18 @@ describe("getParent() Should", () => {
         expect(iterations).to.eql(6);
     });
 
-    it("return the correct parent", () => {
-        const row = workspace.getParent((p) => p.type === "row");
-        const group = workspace.getParent((p) => p.type === "group");
-        const column = workspace.getParent((p) => p.type === "column");
+    it("return the correct box", () => {
+        const row = workspace.getBox((p) => p.type === "row");
+        const group = workspace.getBox((p) => p.type === "group");
+        const column = workspace.getBox((p) => p.type === "column");
 
         expect(row.type).to.eql("row");
         expect(group.type).to.eql("group");
         expect(column.type).to.eql("column");
     });
 
-    it("return undefined when no parent could be found", () => {
-        const parent = workspace.getParent((p) => {
+    it("return undefined when no box could be found", () => {
+        const parent = workspace.getBox((p) => {
             return false;
         });
 
@@ -82,9 +82,9 @@ describe("getParent() Should", () => {
         });
 
         // Not focused workspace
-        it("iterate over all parents when the workspace is not focused", () => {
+        it("iterate over all boxes when the workspace is not focused", () => {
             let iterations = 0;
-            workspace.getParent((p) => {
+            workspace.getBox((p) => {
                 iterations += 1;
                 return false;
             });
@@ -92,10 +92,10 @@ describe("getParent() Should", () => {
             expect(iterations).to.eql(6);
         });
 
-        it("return the correct parent when the workspace is not focused", () => {
-            const row = workspace.getParent((p) => p.type === "row");
-            const group = workspace.getParent((p) => p.type === "group");
-            const column = workspace.getParent((p) => p.type === "column");
+        it("return the correct box when the workspace is not focused", () => {
+            const row = workspace.getBox((p) => p.type === "row");
+            const group = workspace.getBox((p) => p.type === "group");
+            const column = workspace.getBox((p) => p.type === "column");
 
             expect(row.type).to.eql("row");
             expect(group.type).to.eql("group");
@@ -107,7 +107,7 @@ describe("getParent() Should", () => {
     Array.from([undefined, null, 42, "42", {}, []]).forEach((input) => {
         it(`throw an error when the input is ${JSON.stringify(input)}`, (done) => {
             try {
-                workspace.getParent(input);
+                workspace.getBox(input);
                 done("Should have thrown an error");
             } catch (error) {
                 done();

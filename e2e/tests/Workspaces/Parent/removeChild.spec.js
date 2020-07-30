@@ -25,7 +25,7 @@ describe("removeChild() Should", () => {
         }
 
         const workspace = await glue.workspaces.createWorkspace(config);
-        const row = workspace.getParent(p => p.type === "row");
+        const row = workspace.getBox(p => p.type === "row");
 
         await row.removeChild(c => c.type === "column");
         await workspace.refreshReference();
@@ -57,13 +57,13 @@ describe("removeChild() Should", () => {
 
         const workspace = await glue.workspaces.createWorkspace(config);
 
-        const row = workspace.getParent(p => p.type === "row");
+        const row = workspace.getBox(p => p.type === "row");
 
         await row.removeChild(c => c.type === "group");
 
         await workspace.refreshReference();
 
-        const group = workspace.getParent(p => p.type === "group");
+        const group = workspace.getBox(p => p.type === "group");
 
         expect(group).to.be.undefined;
     });
@@ -86,7 +86,7 @@ describe("removeChild() Should", () => {
         }
 
         const workspace = await glue.workspaces.createWorkspace(config);
-        const column = workspace.getParent(p => p.type === "column");
+        const column = workspace.getBox(p => p.type === "column");
 
         await column.removeChild(c => c.type === "row");
         await workspace.refreshReference();
@@ -114,12 +114,12 @@ describe("removeChild() Should", () => {
         }
 
         const workspace = await glue.workspaces.createWorkspace(config);
-        const column = workspace.getParent(p => p.type === "column");
+        const column = workspace.getBox(p => p.type === "column");
 
         await column.removeChild(c => c.type === "group");
         await workspace.refreshReference();
 
-        const group = workspace.getParent(p => p.type === "group");
+        const group = workspace.getBox(p => p.type === "group");
 
         expect(group).to.be.undefined;
     });
@@ -152,14 +152,14 @@ describe("removeChild() Should", () => {
         }
 
         const workspace = await glue.workspaces.createWorkspace(config);
-        const row = workspace.getParent(p => p.type === "row");
+        const row = workspace.getBox(p => p.type === "row");
 
         await row.removeChild(c => c.type === "column");
         await workspace.refreshReference();
 
-        const parents = workspace.getAllParents();
+        const boxes = workspace.getAllBoxes();
 
-        expect(parents.length).to.eql(2);
+        expect(boxes.length).to.eql(2);
     });
 
     it("remove the child and all of its children when the child is a group and has more children and the parent is a row", async () => {
@@ -190,15 +190,15 @@ describe("removeChild() Should", () => {
         }
 
         const workspace = await glue.workspaces.createWorkspace(config);
-        const row = workspace.getParent(p => p.type === "row");
+        const row = workspace.getBox(p => p.type === "row");
 
         await row.removeChild(c => c.type === "group");
         await workspace.refreshReference();
 
-        const parents = workspace.getAllParents();
+        const boxes = workspace.getAllBoxes();
         const windows = workspace.getAllWindows();
 
-        expect(parents.length).to.eql(1);
+        expect(boxes.length).to.eql(1);
         expect(windows.length).to.eql(1);
     });
 
@@ -227,15 +227,15 @@ describe("removeChild() Should", () => {
 
         const workspace = await glue.workspaces.createWorkspace(config);
 
-        const column = workspace.getParent(p => p.type === "column");
+        const column = workspace.getBox(p => p.type === "column");
 
         await column.removeChild(c => c.type === "row");
         await workspace.refreshReference();
 
-        const parents = workspace.getAllParents();
+        const boxes = workspace.getAllBoxes();
         const windows = workspace.getAllWindows();
 
-        expect(parents.length).to.eql(0);
+        expect(boxes.length).to.eql(0);
         expect(windows.length).to.eql(0);
     });
 
@@ -259,15 +259,15 @@ describe("removeChild() Should", () => {
 
         const workspace = await glue.workspaces.createWorkspace(config);
 
-        const column = workspace.getParent(p => p.type === "column");
+        const column = workspace.getBox(p => p.type === "column");
 
         await column.removeChild(c => c.type === "group");
         await workspace.refreshReference();
 
-        const parents = workspace.getAllParents();
+        const boxes = workspace.getAllBoxes();
         const windows = workspace.getAllWindows();
 
-        expect(parents.length).to.eql(0);
+        expect(boxes.length).to.eql(0);
         expect(windows.length).to.eql(0);
     });
 
@@ -291,16 +291,16 @@ describe("removeChild() Should", () => {
 
         const workspace = await glue.workspaces.createWorkspace(config);
 
-        const group = workspace.getParent(p => p.type === "group");
+        const group = workspace.getBox(p => p.type === "group");
         const windowsBeforeRemove = workspace.getAllWindows();
 
         await group.removeChild(c => c.id === windowsBeforeRemove[0].id);
         await workspace.refreshReference();
 
-        const parents = workspace.getAllParents();
+        const boxes = workspace.getAllBoxes();
         const windows = workspace.getAllWindows();
 
-        expect(parents.length).to.eql(2); // It has an underlying column
+        expect(boxes.length).to.eql(2); // It has an underlying column
         expect(windows.length).to.eql(1);
     });
 
@@ -321,12 +321,12 @@ describe("removeChild() Should", () => {
         const workspace = await glue.workspaces.createWorkspace(config);
         await glue.workspaces.createWorkspace(config);
 
-        const row = workspace.getParent(p => p.type === "row");
+        const row = workspace.getBox(p => p.type === "row");
 
         await row.removeChild(c => c.type === "column");
         await workspace.refreshReference();
 
-        const column = workspace.getParent(p => p.type === "column");
+        const column = workspace.getBox(p => p.type === "column");
 
         expect(column).to.be.undefined;
     });
@@ -347,13 +347,13 @@ describe("removeChild() Should", () => {
         const workspace = await glue.workspaces.createWorkspace(config);
         await glue.workspaces.createWorkspace(config);
 
-        const row = workspace.getParent(p => p.type === "row");
+        const row = workspace.getBox(p => p.type === "row");
 
         await row.removeChild(c => c.type === "group");
 
         await workspace.refreshReference();
 
-        const group = workspace.getParent(p => p.type === "group");
+        const group = workspace.getBox(p => p.type === "group");
 
         expect(group).to.be.undefined;
     });
@@ -374,12 +374,12 @@ describe("removeChild() Should", () => {
         const workspace = await glue.workspaces.createWorkspace(config);
         await glue.workspaces.createWorkspace(config);
 
-        const column = workspace.getParent(p => p.type === "column");
+        const column = workspace.getBox(p => p.type === "column");
 
         await column.removeChild(c => c.type === "row");
         await workspace.refreshReference();
 
-        const row = workspace.getParent(p => p.type === "row");
+        const row = workspace.getBox(p => p.type === "row");
 
         expect(row).to.be.undefined;
     });
@@ -400,12 +400,12 @@ describe("removeChild() Should", () => {
         const workspace = await glue.workspaces.createWorkspace(config);
         await glue.workspaces.createWorkspace(config);
 
-        const column = workspace.getParent(p => p.type === "column");
+        const column = workspace.getBox(p => p.type === "column");
 
         await column.removeChild(c => c.type === "group");
         await workspace.refreshReference();
 
-        const group = workspace.getParent(p => p.type === "group");
+        const group = workspace.getBox(p => p.type === "group");
 
         expect(group).to.be.undefined;
     });
@@ -430,14 +430,14 @@ describe("removeChild() Should", () => {
 
         const workspace = await glue.workspaces.createWorkspace(config);
         await glue.workspaces.createWorkspace(config);
-        const row = workspace.getParent(p => p.type === "row");
+        const row = workspace.getBox(p => p.type === "row");
 
         await row.removeChild(c => c.type === "column");
         await workspace.refreshReference();
 
-        const parents = workspace.getAllParents();
+        const boxes = workspace.getAllBoxes();
 
-        expect(parents.length).to.eql(0); // the workspace is closed
+        expect(boxes.length).to.eql(0); // the workspace is closed
     });
 
     it("remove the child and all of its children when the child is a group and has more children and the parent is a row and the workspace is not focused", async () => {
@@ -461,15 +461,15 @@ describe("removeChild() Should", () => {
         const workspace = await glue.workspaces.createWorkspace(config);
         await glue.workspaces.createWorkspace(config);
 
-        const row = workspace.getParent(p => p.type === "row");
+        const row = workspace.getBox(p => p.type === "row");
 
         await row.removeChild(c => c.type === "group");
         await workspace.refreshReference();
 
-        const parents = workspace.getAllParents();
+        const boxes = workspace.getAllBoxes();
         const windows = workspace.getAllWindows();
 
-        expect(parents.length).to.eql(0); // The workspace is closed
+        expect(boxes.length).to.eql(0); // The workspace is closed
         expect(windows.length).to.eql(0);
     });
 
@@ -499,15 +499,15 @@ describe("removeChild() Should", () => {
         const workspace = await glue.workspaces.createWorkspace(config);
         await glue.workspaces.createWorkspace(config);
 
-        const column = workspace.getParent(p => p.type === "column");
+        const column = workspace.getBox(p => p.type === "column");
 
         await column.removeChild(c => c.type === "row");
         await workspace.refreshReference();
 
-        const parents = workspace.getAllParents();
+        const boxes = workspace.getAllBoxes();
         const windows = workspace.getAllWindows();
 
-        expect(parents.length).to.eql(0); // the workspace is closed
+        expect(boxes.length).to.eql(0); // the workspace is closed
         expect(windows.length).to.eql(0);
     });
 
@@ -532,15 +532,15 @@ describe("removeChild() Should", () => {
         const workspace = await glue.workspaces.createWorkspace(config);
         await glue.workspaces.createWorkspace(config);
 
-        const column = workspace.getParent(p => p.type === "column");
+        const column = workspace.getBox(p => p.type === "column");
 
         await column.removeChild(c => c.type === "group");
         await workspace.refreshReference();
 
-        const parents = workspace.getAllParents();
+        const boxes = workspace.getAllBoxes();
         const windows = workspace.getAllWindows();
 
-        expect(parents.length).to.eql(0); // the workspace is closed
+        expect(boxes.length).to.eql(0); // the workspace is closed
         expect(windows.length).to.eql(0);
     });
 
@@ -566,17 +566,17 @@ describe("removeChild() Should", () => {
 
         await glue.workspaces.createWorkspace(config);
 
-        const group = workspace.getParent(p => p.type === "group");
+        const group = workspace.getBox(p => p.type === "group");
         const windowsBeforeRemove = workspace.getAllWindows();
 
 
         await group.removeChild(c => c.id === windowsBeforeRemove[0].id);
         await workspace.refreshReference();
 
-        const parents = workspace.getAllParents();
+        const boxes = workspace.getAllBoxes();
         const windows = workspace.getAllWindows();
 
-        expect(parents.length).to.eql(2); // it has an underlying column
+        expect(boxes.length).to.eql(2); // it has an underlying column
         expect(windows.length).to.eql(1);
     });
 
@@ -600,7 +600,7 @@ describe("removeChild() Should", () => {
             }
 
             glue.workspaces.createWorkspace(config).then((workspace) => {
-                const group = workspace.getParent(p => p.type === "group");
+                const group = workspace.getBox(p => p.type === "group");
                 const windows = workspace.getAllWindows();
 
                 return group.removeChild(input);

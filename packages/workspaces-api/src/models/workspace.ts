@@ -25,7 +25,7 @@ const getDataManager = (model: Workspace): PrivateDataManager => {
     return data.get(model).manager;
 };
 
-export class Workspace implements Workspace {
+export class Workspace implements Glue42Workspaces.Workspace {
 
     constructor(dataManager: PrivateDataManager) {
         data.set(this, { manager: dataManager });
@@ -116,7 +116,7 @@ export class Workspace implements Workspace {
             if (child.type === "window") {
                 foundChild = this.getWindow((swimlaneWindow) => swimlaneWindow.id === child.id);
             } else {
-                foundChild = this.getParent((parent) => parent.id === child.id);
+                foundChild = this.getBox((parent) => parent.id === child.id);
             }
 
             if (foundChild) {
@@ -154,20 +154,20 @@ export class Workspace implements Workspace {
         });
     }
 
-    public getParent(predicate: (parent: Glue42Workspaces.WorkspaceParent) => boolean): Glue42Workspaces.WorkspaceParent {
+    public getBox(predicate: (box: Glue42Workspaces.WorkspaceBox) => boolean): Glue42Workspaces.WorkspaceBox {
         checkThrowCallback(predicate);
         const children = getData(this).children;
         const controller = getData(this).controller;
 
-        return controller.iterateFindChild(children, (child) => child.type !== "window" && predicate(child)) as Glue42Workspaces.WorkspaceParent;
+        return controller.iterateFindChild(children, (child) => child.type !== "window" && predicate(child)) as Glue42Workspaces.WorkspaceBox;
     }
 
-    public getAllParents(predicate?: (parent: Glue42Workspaces.WorkspaceParent) => boolean): Glue42Workspaces.WorkspaceParent[] {
+    public getAllBoxes(predicate?: (parent: Glue42Workspaces.WorkspaceBox) => boolean): Glue42Workspaces.WorkspaceBox[] {
         checkThrowCallback(predicate, true);
         const children = getData(this).children;
         const controller = getData(this).controller;
 
-        const allParents = controller.iterateFilterChildren(children, (child) => child.type !== "window") as Glue42Workspaces.WorkspaceParent[];
+        const allParents = controller.iterateFilterChildren(children, (child) => child.type !== "window") as Glue42Workspaces.WorkspaceBox[];
 
         if (!predicate) {
             return allParents;
@@ -178,41 +178,41 @@ export class Workspace implements Workspace {
 
     public getRow(predicate: (row: Row) => boolean): Row {
         checkThrowCallback(predicate);
-        return this.getParent((parent) => parent.type === "row" && predicate(parent)) as Row;
+        return this.getBox((parent) => parent.type === "row" && predicate(parent)) as Row;
     }
 
     public getAllRows(predicate?: (row: Row) => boolean): Row[] {
         checkThrowCallback(predicate, true);
         if (predicate) {
-            return this.getAllParents((parent) => parent.type === "row" && predicate(parent)) as Row[];
+            return this.getAllBoxes((parent) => parent.type === "row" && predicate(parent)) as Row[];
         }
-        return this.getAllParents((parent) => parent.type === "row") as Row[];
+        return this.getAllBoxes((parent) => parent.type === "row") as Row[];
     }
 
     public getColumn(predicate: (column: Column) => boolean): Column {
         checkThrowCallback(predicate);
-        return this.getParent((parent) => parent.type === "column" && predicate(parent)) as Column;
+        return this.getBox((parent) => parent.type === "column" && predicate(parent)) as Column;
     }
 
     public getAllColumns(predicate?: (columns: Column) => boolean): Column[] {
         checkThrowCallback(predicate, true);
         if (predicate) {
-            return this.getAllParents((parent) => parent.type === "column" && predicate(parent)) as Column[];
+            return this.getAllBoxes((parent) => parent.type === "column" && predicate(parent)) as Column[];
         }
-        return this.getAllParents((parent) => parent.type === "column") as Column[];
+        return this.getAllBoxes((parent) => parent.type === "column") as Column[];
     }
 
     public getGroup(predicate: (group: Group) => boolean): Group {
         checkThrowCallback(predicate);
-        return this.getParent((parent) => parent.type === "group" && predicate(parent)) as Group;
+        return this.getBox((parent) => parent.type === "group" && predicate(parent)) as Group;
     }
 
     public getAllGroups(predicate?: (group: Group) => boolean): Group[] {
         checkThrowCallback(predicate, true);
         if (predicate) {
-            return this.getAllParents((parent) => parent.type === "group" && predicate(parent)) as Group[];
+            return this.getAllBoxes((parent) => parent.type === "group" && predicate(parent)) as Group[];
         }
-        return this.getAllParents((parent) => parent.type === "group") as Group[];
+        return this.getAllBoxes((parent) => parent.type === "group") as Group[];
     }
 
     public getWindow(predicate: (window: Glue42Workspaces.WorkspaceWindow) => boolean): Glue42Workspaces.WorkspaceWindow {
@@ -237,15 +237,15 @@ export class Workspace implements Workspace {
         return allWindows.filter(predicate);
     }
 
-    public addRow(definition?: Glue42Workspaces.ParentDefinition): Promise<Row> {
+    public addRow(definition?: Glue42Workspaces.BoxDefinition): Promise<Row> {
         return getData(this).base.addParent<Row>(this, "row", "workspace", definition);
     }
 
-    public addColumn(definition?: Glue42Workspaces.ParentDefinition): Promise<Column> {
+    public addColumn(definition?: Glue42Workspaces.BoxDefinition): Promise<Column> {
         return getData(this).base.addParent<Column>(this, "column", "workspace", definition);
     }
 
-    public addGroup(definition?: Glue42Workspaces.ParentDefinition): Promise<Group> {
+    public addGroup(definition?: Glue42Workspaces.BoxDefinition): Promise<Group> {
         return getData(this).base.addParent<Group>(this, "group", "workspace", definition);
     }
 
@@ -328,7 +328,7 @@ export class Workspace implements Workspace {
         const id = getData(this).id;
         const wrappedCallback = async (payload: WindowStreamData): Promise<void> => {
             await this.refreshReference();
-            const windowParent = this.getParent((parent) => parent.id === payload.windowSummary.parentId);
+            const windowParent = this.getBox((parent) => parent.id === payload.windowSummary.parentId);
 
             const foundWindow = windowParent.children.find((child) => {
 
@@ -419,13 +419,13 @@ export class Workspace implements Workspace {
         return unsubscribe;
     }
 
-    public async onParentAdded(callback: (parent: Glue42Workspaces.WorkspaceParent) => void): Promise<Glue42Workspaces.Unsubscribe> {
+    public async onBoxAdded(callback: (parent: Glue42Workspaces.WorkspaceBox) => void): Promise<Glue42Workspaces.Unsubscribe> {
         checkThrowCallback(callback);
         const id = getData(this).id;
 
         const wrappedCallback = async (payload: ContainerStreamData): Promise<void> => {
             await this.refreshReference();
-            const foundParent = this.getParent((parent) => parent.id === payload.containerSummary.itemId);
+            const foundParent = this.getBox((parent) => parent.id === payload.containerSummary.itemId);
             callback(foundParent);
         };
 
@@ -441,7 +441,7 @@ export class Workspace implements Workspace {
         return unsubscribe;
     }
 
-    public async onParentRemoved(callback: (removed: { id: string; workspaceId: string; frameId: string }) => void): Promise<Glue42Workspaces.Unsubscribe> {
+    public async onBoxRemoved(callback: (removed: { id: string; workspaceId: string; frameId: string }) => void): Promise<Glue42Workspaces.Unsubscribe> {
         checkThrowCallback(callback);
         const id = getData(this).id;
 
@@ -463,13 +463,13 @@ export class Workspace implements Workspace {
         return unsubscribe;
     }
 
-    public async onParentUpdated(callback: (parent: Glue42Workspaces.WorkspaceParent) => void): Promise<Glue42Workspaces.Unsubscribe> {
+    public async onBoxUpdated(callback: (parent: Glue42Workspaces.WorkspaceBox) => void): Promise<Glue42Workspaces.Unsubscribe> {
         checkThrowCallback(callback);
         const id = getData(this).id;
 
         const wrappedCallback = async (payload: ContainerStreamData): Promise<void> => {
             await this.refreshReference();
-            const foundParent = this.getParent((parent) => parent.id === payload.containerSummary.itemId);
+            const foundParent = this.getBox((parent) => parent.id === payload.containerSummary.itemId);
             callback(foundParent);
         };
 

@@ -163,7 +163,7 @@ export interface AddWindowConfig {
 }
 
 export interface AddContainerConfig {
-    definition: Glue42Workspaces.ParentDefinition;
+    definition: Glue42Workspaces.BoxDefinition;
     parentId: string;
     parentType: "row" | "column" | "group" | "workspace";
 }

@@ -35,7 +35,7 @@ describe('export() Should ', function () {
             const savePromises = Array.from({ length: i + 1 }).map(async () => {
                 const workspace = await glue.workspaces.createWorkspace(basicConfig);
                 const layoutName = gtf.getWindowName("layout");
-                console.log(layoutName);
+
                 await workspace.saveLayout(layoutName);
 
                 layoutsForCleanup.push(layoutName);

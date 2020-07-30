@@ -28,7 +28,7 @@ export class WorkspaceBuilder implements WorkspaceBuilder {
         privateData.set(this, { base, children, definition, controller });
     }
 
-    public addColumn(definition?: Glue42Workspaces.ParentDefinition): ParentBuilder {
+    public addColumn(definition?: Glue42Workspaces.BoxDefinition): ParentBuilder {
         const children = privateData.get(this).children;
 
         const areAllColumns = children.every((child) => child instanceof ParentBuilder && child.type === "column");
@@ -42,7 +42,7 @@ export class WorkspaceBuilder implements WorkspaceBuilder {
         return base.add("column", children, definition);
     }
 
-    public addRow(definition?: Glue42Workspaces.ParentDefinition): ParentBuilder {
+    public addRow(definition?: Glue42Workspaces.BoxDefinition): ParentBuilder {
         const children = privateData.get(this).children;
 
         const areAllRows = children.every((child) => child instanceof ParentBuilder && child.type === "row");
@@ -56,7 +56,7 @@ export class WorkspaceBuilder implements WorkspaceBuilder {
         return base.add("row", children, definition);
     }
 
-    public addGroup(definition?: Glue42Workspaces.ParentDefinition): ParentBuilder {
+    public addGroup(definition?: Glue42Workspaces.BoxDefinition): ParentBuilder {
         const children = privateData.get(this).children;
 
         if (children.length !== 0) {

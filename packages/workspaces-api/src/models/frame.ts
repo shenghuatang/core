@@ -289,7 +289,7 @@ export class Frame implements Glue42Workspaces.Frame {
         return unsubscribe;
     }
 
-    public async onParentAdded(callback: (parent: Glue42Workspaces.Row | Glue42Workspaces.Column | Glue42Workspaces.Group) => void): Promise<Glue42Workspaces.Unsubscribe> {
+    public async onBoxAdded(callback: (parent: Glue42Workspaces.Row | Glue42Workspaces.Column | Glue42Workspaces.Group) => void): Promise<Glue42Workspaces.Unsubscribe> {
         checkThrowCallback(callback);
         const myId = getData(this).summary.id;
 
@@ -308,7 +308,7 @@ export class Frame implements Glue42Workspaces.Frame {
         return unsubscribe;
     }
 
-    public async onParentRemoved(callback: (removed: { id: string; workspaceId: string; frameId: string }) => void): Promise<Glue42Workspaces.Unsubscribe> {
+    public async onBoxRemoved(callback: (removed: { id: string; workspaceId: string; frameId: string }) => void): Promise<Glue42Workspaces.Unsubscribe> {
         checkThrowCallback(callback);
         const myId = getData(this).summary.id;
 
@@ -327,7 +327,7 @@ export class Frame implements Glue42Workspaces.Frame {
         return unsubscribe;
     }
 
-    public async onParentUpdated(callback: (parent: Glue42Workspaces.Row | Glue42Workspaces.Column | Glue42Workspaces.Group) => void): Promise<Glue42Workspaces.Unsubscribe> {
+    public async onBoxUpdated(callback: (parent: Glue42Workspaces.Row | Glue42Workspaces.Column | Glue42Workspaces.Group) => void): Promise<Glue42Workspaces.Unsubscribe> {
         checkThrowCallback(callback);
         const myId = getData(this).summary.id;
 

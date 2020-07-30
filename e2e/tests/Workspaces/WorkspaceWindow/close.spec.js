@@ -155,7 +155,7 @@ describe("close() Should", () => {
             // Potential race if the window loads very fast
             // TODO refactor
             await workspace.refreshReference();
-            console.log(workspace.getAllParents().length);
+
             await workspace.addWindow(windowConfig);
 
             await workspace.refreshReference();

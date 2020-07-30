@@ -20,7 +20,7 @@ export const composeAPI = (glue: any, ioc: IoC): Glue42Workspaces.API => {
         return controller.checkIsInSwimlane(myId);
     };
 
-    const getBuilder = (config: Glue42Workspaces.BuilderConfig): Glue42Workspaces.WorkspaceBuilder | Glue42Workspaces.ParentBuilder => {
+    const getBuilder = (config: Glue42Workspaces.BuilderConfig): Glue42Workspaces.WorkspaceBuilder | Glue42Workspaces.BoxBuilder => {
         const validatedConfig = builderConfigDecoder.runWithException(config);
 
         return ioc.getBuilder(validatedConfig);
@@ -89,7 +89,7 @@ export const composeAPI = (glue: any, ioc: IoC): Glue42Workspaces.API => {
         return controller.getWindow(predicate);
     };
 
-    const getParent = async (predicate: (parent: Glue42Workspaces.WorkspaceParent) => boolean): Promise<Glue42Workspaces.WorkspaceParent> => {
+    const getParent = async (predicate: (parent: Glue42Workspaces.WorkspaceBox) => boolean): Promise<Glue42Workspaces.WorkspaceBox> => {
         checkThrowCallback(predicate);
         return controller.getParent(predicate);
     };
@@ -270,7 +270,7 @@ export const composeAPI = (glue: any, ioc: IoC): Glue42Workspaces.API => {
 
             const workspace = ioc.getModel<"workspace">("workspace", workspaceConfig);
 
-            const windowParent = workspace.getParent((parent) => parent.id === payload.windowSummary.parentId);
+            const windowParent = workspace.getBox((parent) => parent.id === payload.windowSummary.parentId);
             const foundWindow = windowParent.children.find((child) => child.type === "window" && child.positionIndex === payload.windowSummary.config.positionIndex);
 
             callback(foundWindow as Glue42Workspaces.WorkspaceWindow);
@@ -333,7 +333,7 @@ export const composeAPI = (glue: any, ioc: IoC): Glue42Workspaces.API => {
         return unsubscribe;
     };
 
-    const onParentAdded = async (callback: (parent: Glue42Workspaces.WorkspaceParent) => void): Promise<Glue42Workspaces.Unsubscribe> => {
+    const onParentAdded = async (callback: (parent: Glue42Workspaces.WorkspaceBox) => void): Promise<Glue42Workspaces.Unsubscribe> => {
         checkThrowCallback(callback);
         const wrappedCallback = async (payload: ContainerStreamData): Promise<void> => {
             const snapshot = (await controller.getSnapshot(payload.containerSummary.config.workspaceId, "workspace")) as WorkspaceSnapshotResult;
@@ -346,7 +346,7 @@ export const composeAPI = (glue: any, ioc: IoC): Glue42Workspaces.API => {
             const workspaceConfig: WorkspaceIoCCreateConfig = { frame, snapshot };
 
             const workspace = ioc.getModel<"workspace">("workspace", workspaceConfig);
-            const foundParent = workspace.getParent((parent) => parent.id === payload.containerSummary.itemId);
+            const foundParent = workspace.getBox((parent) => parent.id === payload.containerSummary.itemId);
             callback(foundParent);
         };
         const unsubscribe = await controller.processGlobalSubscription(wrappedCallback, "container", "added");
@@ -374,7 +374,7 @@ export const composeAPI = (glue: any, ioc: IoC): Glue42Workspaces.API => {
         getWorkspace,
         getAllWorkspaces,
         getWindow,
-        getParent,
+        getBox: getParent,
         restoreWorkspace,
         createWorkspace,
         layouts,
@@ -390,7 +390,7 @@ export const composeAPI = (glue: any, ioc: IoC): Glue42Workspaces.API => {
         onWindowLoaded,
         onWindowRemoved,
         onWindowFocusChange,
-        onParentAdded,
-        onParentRemoved
+        onBoxAdded: onParentAdded,
+        onBoxRemoved: onParentRemoved
     };
 };
