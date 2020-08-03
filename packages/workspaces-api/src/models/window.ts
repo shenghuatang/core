@@ -49,7 +49,7 @@ export class Window implements Glue42Workspaces.WorkspaceWindow {
     }
 
     public get isLoaded(): boolean {
-        return getData(this).config.isLoaded;
+        return getData(this).config.isLoaded && !!this.getGdWindow();
     }
 
     public get focused(): boolean {
@@ -144,7 +144,7 @@ export class Window implements Glue42Workspaces.WorkspaceWindow {
 
     public getGdWindow(): GDWindow {
 
-        if (!this.isLoaded) {
+        if (!getData(this).config.isLoaded) {
             throw new Error("Cannot fetch this GD window, because the window is not yet loaded");
         }
 
