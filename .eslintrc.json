@@ -16,6 +16,7 @@
         "tutorials/*",
         "packages/web/**/*.js",
         "packages/core/**/*.js",
+        "packages/fdc3/**/*.js",
         "packages/workspaces-app/**/*.js",
         "packages/golden-layout/*",
         "docs/*",
