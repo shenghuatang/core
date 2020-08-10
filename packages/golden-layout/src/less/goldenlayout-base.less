@@ -256,13 +256,15 @@
 .lm_tab_mini {
     transition: all 0.3s ease;
     .lm_close_tab,
-    .lm_close_tab::before {
+    .lm_close_tab::before,
+    .lm_close_tab::after {
         visibility: hidden;
     }
     &:hover {
         min-width: 1.563rem;
         .lm_close_tab,
-        .lm_close_tab::before {
+        .lm_close_tab::before,
+        .lm_close_tab::after {
             visibility: visible;
         }
     }

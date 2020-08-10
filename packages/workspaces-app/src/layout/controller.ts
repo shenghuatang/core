@@ -744,6 +744,7 @@ export class LayoutController {
         this.emitter.onContentContainerResized((item) => {
             const currLayout = store.getById(id).layout;
             if (currLayout) {
+                // The size must be passed in order to handle resizes like maximize of the browser
                 currLayout.updateSize($(item.element).width(), $(item.element).height());
             }
         }, id);
