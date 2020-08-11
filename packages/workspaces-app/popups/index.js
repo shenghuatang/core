@@ -1,5 +1,5 @@
 
-import GlueWeb from "./lib/web.umd";
+import GlueWeb from "@glue42/web";
 import workspaces from "@glue42/workspaces-api";
 
 const config = {
@@ -61,8 +61,8 @@ GlueWeb(config).then(async (glue) => {
     const updatePopupSize = () => {
         const bodyBounds = document.body.getBoundingClientRect();
         const bodySize = {
-            width: bodyBounds.width,
-            height: bodyBounds.height
+            width: Math.ceil(bodyBounds.width),
+            height: Math.ceil(bodyBounds.height)
         }
 
         const instance = glue.agm.servers().find((i) => i.peerId === startInformation.peerId)
@@ -230,8 +230,8 @@ GlueWeb(config).then(async (glue) => {
 
         const bodyBounds = document.body.getBoundingClientRect();
         const bodySize = {
-            width: bodyBounds.width,
-            height: bodyBounds.height
+            width: Math.ceil(bodyBounds.width),
+            height: Math.ceil(bodyBounds.height)
         }
 
         success(bodySize)
