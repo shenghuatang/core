@@ -32,6 +32,7 @@ import { idAsString } from "../utils";
 import converter from "../config/converter";
 import { Glue42Web } from "@glue42/web";
 import factory from "../config/factory";
+import { EventActionType, EventPayload } from "../types/events";
 
 declare const window: Window & { glue: Glue42Web.API };
 
@@ -41,6 +42,7 @@ class GlueFacade {
     private readonly _workspacesWorkspaceStream = "T42.Workspaces.Stream.Workspace";
     private readonly _workspacesFrameStream = "T42.Workspaces.Stream.Frame";
     private readonly _workspacesControlMethod = "T42.Workspaces.Control";
+    private readonly _workspacesEventMethod = "T42.Workspaces.Global";
 
     private _frameId: string;
     private _frameStream: Glue42Web.Interop.Stream;
@@ -52,6 +54,7 @@ class GlueFacade {
         this._frameId = frameId;
         if (window.glue) {
             await this.registerAgmMethods();
+            this.subscribeForEvents();
         }
     }
 
@@ -376,55 +379,64 @@ class GlueFacade {
         return manager.generateWorkspaceLayout(operationArguments.name, operationArguments.workspaceId);
     }
 
-    // private subscribeForEvents() {
-    //     manager.workspacesEventEmitter.onFrameEvent((action, payload) => {
-    //         const frameBranchKey = `frame_${payload.frameSummary.id}`;
-    //         const branchesToStream = [
-    //             ...this.getBranchesToStream(this._frameStream, [frameBranchKey]),
-    //         ];
+    private subscribeForEvents() {
+        manager.workspacesEventEmitter.onFrameEvent((action, payload) => {
+            const frameBranchKey = `frame_${payload.frameSummary.id}`;
+            const branchesToStream = [
+                ...this.getBranchesToStream(this._frameStream, [frameBranchKey]),
+            ];
+            this.publishEventData(branchesToStream, action, payload, "frame");
+        });
 
-    //         branchesToStream.forEach((b) => {
-    //             b.push({ action, payload });
-    //         });
-    //     });
+        manager.workspacesEventEmitter.onWindowEvent((action, payload) => {
+            const windowBranchKey = `window_${payload.windowSummary.itemId}`;
+            const workspaceBranchKey = `workspace_${payload.windowSummary.config.workspaceId}`;
+            const frameBranchKey = `frame_${payload.windowSummary.config.frameId}`;
+            const branchesToStream = [
+                ...this.getBranchesToStream(this._windowStream, [windowBranchKey, workspaceBranchKey, frameBranchKey]),
+            ];
 
-    //     manager.workspacesEventEmitter.onWindowEvent((action, payload) => {
-    //         const windowBranchKey = `window_${payload.windowSummary.itemId}`;
-    //         const workspaceBranchKey = `workspace_${payload.windowSummary.config.workspaceId}`;
-    //         const frameBranchKey = `frame_${payload.windowSummary.config.frameId}`;
-    //         const branchesToStream = [
-    //             ...this.getBranchesToStream(this._windowStream, [windowBranchKey, workspaceBranchKey, frameBranchKey]),
-    //         ];
+            this.publishEventData(branchesToStream, action, payload, "window");
+        });
 
-    //         branchesToStream.forEach((b) => {
-    //             b.push({ action, payload });
-    //         });
-    //     });
+        manager.workspacesEventEmitter.onWorkspaceEvent((action, payload) => {
+            const workspaceBranchKey = `workspace_${payload.workspaceSummary.id}`;
+            const frameBranchKey = `frame_${payload.frameSummary.id}`;
+            const branchesToStream = [
+                ...this.getBranchesToStream(this._workspaceStream, [workspaceBranchKey, frameBranchKey]),
+            ];
+            this.publishEventData(branchesToStream, action, payload, "workspace");
+        });
 
-    //     manager.workspacesEventEmitter.onWorkspaceEvent((action, payload) => {
-    //         const workspaceBranchKey = `workspace_${payload.workspaceSummary.id}`;
-    //         const frameBranchKey = `frame_${payload.frameSummary.id}`;
-    //         const branchesToStream = [
-    //             ...this.getBranchesToStream(this._workspaceStream, [workspaceBranchKey, frameBranchKey]),
-    //         ];
+        manager.workspacesEventEmitter.onContainerEvent((action, payload) => {
+            const workspaceBranchKey = `workspace_${payload.containerSummary.config.workspaceId}`;
+            const frameBranchKey = `frame_${payload.containerSummary.config.frameId}`;
+            const branchesToStream = [
+                ...this.getBranchesToStream(this._containerStream, [workspaceBranchKey, frameBranchKey]),
+            ];
 
-    //         branchesToStream.forEach((b) => {
-    //             b.push({ action, payload });
-    //         });
-    //     });
+            this.publishEventData(branchesToStream, action, payload, "box");
+        });
+    }
 
-    //     manager.workspacesEventEmitter.onContainerEvent((action, payload) => {
-    //         const workspaceBranchKey = `workspace_${payload.containerSummary.config.workspaceId}`;
-    //         const frameBranchKey = `frame_${payload.containerSummary.config.frameId}`;
-    //         const branchesToStream = [
-    //             ...this.getBranchesToStream(this._containerStream, [workspaceBranchKey, frameBranchKey]),
-    //         ];
+    private publishEventData(branchesToStream: Glue42Web.Interop.StreamBranch[], action: EventActionType, payload: EventPayload, type: "workspace" | "frame" | "box" | "window") {
+        branchesToStream.forEach((b) => {
+            b.push({ action, payload });
+        });
 
-    //         branchesToStream.forEach((b) => {
-    //             b.push({ action, payload });
-    //         });
-    //     });
-    // }
+        const hasEventMethod = window.glue.agm.methods().some(m => m.name);
+        if (hasEventMethod) {
+            const methodPayload = {
+                action,
+                type,
+                payload
+            };
+
+            window.glue.agm.invoke(this._workspacesEventMethod, methodPayload, "all").catch(() => {
+                // console.warn(`Could not push data to ${this._workspacesEventMethod} because ${e.message}`);
+            });
+        }
+    }
 
     private getBranchesToStream(stream: Glue42Web.Interop.Stream, branchKeys: string[]) {
         const globalBranch = stream.branches("global");

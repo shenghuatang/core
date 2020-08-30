@@ -302,6 +302,7 @@ class WorkspacesManager {
             const componentId = idAsString(component.config.id);
             const windowTitle = title || appName;
 
+            const isNewWindow = !!store.getWindow(componentId);
             store.addWindow({ id: componentId, bounds: newWindowBounds, windowId }, workspace.id);
 
             let workspaceContext = component?.layoutManager?.config?.workspacesOptions?.context;
@@ -323,19 +324,21 @@ class WorkspacesManager {
             if (windowTitle) {
                 component.setTitle(windowTitle);
             }
+            if (isNewWindow) {
+                const windowSummary = this.stateResolver.getWindowSummarySync(componentId, component);
+                this.workspacesEventEmitter.raiseWindowEvent({
+                    action: "added",
+                    payload: {
+                        windowSummary
+                    }
+                });
+            }
             try {
                 const frame = await this._frameController.startFrame(componentId, url, undefined, workspaceContext, windowId);
 
                 component.config.componentState.windowId = frame.name;
 
                 this._frameController.moveFrame(componentId, getElementBounds(component.element));
-
-                this._workspacesEventEmitter.raiseWindowEvent({
-                    action: "added",
-                    payload: {
-                        windowSummary: await this.stateResolver.getWindowSummary(componentId)
-                    }
-                });
 
                 this._workspacesEventEmitter.raiseWindowEvent({
                     action: "loaded",
@@ -585,6 +588,8 @@ class WorkspacesManager {
                 return;
             }
             this._layoutsManager.saveWorkspacesFrame(currentWorkspaces);
+
+            this.workspacesEventEmitter.raiseFrameEvent({ action: "closed", payload: { frameSummary: { id: this._frameId } } });
         };
     }
 
@@ -601,17 +606,34 @@ class WorkspacesManager {
     private closeTab(item: GoldenLayout.ContentItem) {
         const itemId = idAsString(item.config.id);
         const workspace = store.getByWindowId(itemId);
+        const windowSummary = this.stateResolver.getWindowSummarySync(itemId);
 
         this._controller.removeLayoutElement(itemId);
         this._frameController.remove(itemId);
+
+        this.workspacesEventEmitter.raiseWindowEvent({
+            action: "removed",
+            payload: {
+                windowSummary
+            }
+        });
+
         if (!workspace.windows.length) {
             this.checkForEmptyWorkspace(workspace);
         }
     }
 
     private closeWorkspace(workspace: Workspace) {
+        const workspaceSummary = this.stateResolver.getWorkspaceSummary(workspace.id);
         workspace.windows.forEach(w => this._frameController.remove(w.id));
         this.checkForEmptyWorkspace(workspace);
+        this.workspacesEventEmitter.raiseWorkspaceEvent({
+            action: "closed",
+            payload: {
+                workspaceSummary,
+                frameSummary: { id: this._frameId }
+            }
+        });
     }
 
     private checkForEmptyWorkspace(workspace: Workspace) {
