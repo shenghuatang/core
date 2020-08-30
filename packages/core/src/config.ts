@@ -31,6 +31,7 @@ export default function (configuration: Glue42Core.Config, ext: Glue42Core.Exten
         const defaultWs = "ws://localhost:8385";
         let ws = gwConfig?.ws;
         const sharedWorker = gwConfig?.sharedWorker;
+        const plugins = (gwConfig as any)?.plugins;
         const inproc = gwConfig?.inproc;
 
         // If running in GD use the injected ws URL
@@ -75,7 +76,12 @@ export default function (configuration: Glue42Core.Config, ext: Glue42Core.Exten
         } else {
             // generate windowId, this is useful in glue0 case, when we're started
             // from shortcut, not another window; ignored in the other cases
-            windowId = window.name || generate();
+            if (typeof window !== "undefined") {
+                windowId = window.name || generate();
+            } else {
+                windowId = generate();
+            }
+
         }
 
         // replay specs for core connection
@@ -97,11 +103,12 @@ export default function (configuration: Glue42Core.Config, ext: Glue42Core.Exten
             reconnectInterval,
             ws,
             sharedWorker,
+            plugins,
             inproc,
             protocolVersion,
             reconnectAttempts,
             replaySpecs,
-        };
+        } as unknown as ConnectionSettings;
     }
 
     function getApplication() {

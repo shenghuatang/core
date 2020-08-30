@@ -30,14 +30,27 @@ declare namespace SharedWorker {
  * Shared worker transport
  */
 export default class SharedWorkerTransport implements Transport {
-    private worker: any;
+    // private worker: any;
     private registry: CallbackRegistry = CallbackRegistryFactory();
+    private readonly port: MessagePort;
 
-    constructor(workerFile: string, private logger: Logger) {
-        this.worker = new SharedWorker(workerFile);
-        this.worker.port.onmessage = (e: { data: any; timestamp: number }) => {
+    constructor(workerFile: string, private logger: Logger, plugins: Array<{ name: string }>) {
+
+        if (typeof workerFile === "string") {
+            const worker = new SharedWorker(workerFile);
+            this.port = worker.port;
+
+        } else {
+            this.port = workerFile;
+        }
+
+        this.port.onmessage = (e: { data: any }) => {
             this.messageHandler(e.data);
         };
+
+        if (Array.isArray(plugins) && plugins.length) {
+            plugins.forEach((plugin) => this.initPlugin(plugin.name));
+        }
     }
 
     public get isObjectBasedTransport() {
@@ -45,7 +58,7 @@ export default class SharedWorkerTransport implements Transport {
     }
 
     public sendObject(msg: object): Promise<void> {
-        this.worker.port.postMessage(msg);
+        this.port.postMessage(msg);
         return Promise.resolve();
     }
 
@@ -79,6 +92,12 @@ export default class SharedWorkerTransport implements Transport {
 
     public reconnect(): Promise<void> {
         return Promise.resolve();
+    }
+
+    private initPlugin(name: string) {
+        const pluginWorker = new SharedWorker(`/glue/plugins/${name}.js`);
+
+        this.port.postMessage({ type: "plugins", port: pluginWorker.port, name }, [pluginWorker.port]);
     }
 
     private messageHandler(msg: object) {

@@ -55,7 +55,7 @@ export default class Connection implements Glue42Core.Connection.API {
         if (settings.inproc) {
             this.transport = new InProcTransport(settings.inproc, logger.subLogger("inMemory"));
         } else if (settings.sharedWorker) {
-            this.transport = new SharedWorkerTransport(settings.sharedWorker, logger.subLogger("shared-worker"));
+            this.transport = new SharedWorkerTransport(settings.sharedWorker, logger.subLogger("shared-worker"), (settings as any).plugins);
         } else if (settings.ws !== undefined) {
             this.transport = new WS(settings, logger.subLogger("ws"));
         } else {

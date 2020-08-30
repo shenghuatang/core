@@ -9,9 +9,13 @@ import Utils from "../../utils/utils";
 import { PromiseWrapper } from "../../utils/pw";
 import timer from "../../utils/timer";
 
+declare const SharedWorkerGlobalScope: any;
+
 const dummyRequire = (): any => undefined;
 const requireFunc: any = Utils.isNode() ? require : dummyRequire;
-const WebSocketConstructor = Utils.isNode() ? requireFunc("ws") : window.WebSocket;
+
+const WebSocketConstructor = Utils.isNode() ? requireFunc("ws") :
+    typeof SharedWorkerGlobalScope === "undefined" ? window.WebSocket : undefined;
 
 export default class WS implements Transport {
     private ws: WebSocket | undefined;

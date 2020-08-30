@@ -61,6 +61,26 @@ const getConfig = async (): Promise<GatewayConfig> => {
 };
 
 export const start = (): void => {
+
+    const knownPlugins: string[] = [];
+
+    const setUpPlugin = (port: MessagePort, name: string, gateway: Gateway) => {
+
+        const isKnownPlugin = knownPlugins.some((plugin) => plugin === name);
+
+        if (isKnownPlugin) {
+            return;
+        }
+
+        const pluginConnection = gateway.connect((_client: object, msg: string) => port.postMessage(msg));
+
+        port.onmessage = (e): void => {
+            pluginConnection.then((client) => client.send(e.data));
+        };
+
+        knownPlugins.push(name);
+    }
+
     const gwReadyPromise = getConfig()
         .catch((error) => {
             console.warn("Error building the Glue42 Worker Config, falling back to defaults. Inner error:");
@@ -85,6 +105,12 @@ export const start = (): void => {
             const clientConnection = gateway.connect((_client: object, msg: string) => port.postMessage(msg));
 
             port.onmessage = (e): void => {
+                if (e.data.type && e.data.type === "plugins") {
+                    // plugins reg
+                    console.log("handling plugins registration");
+                    setUpPlugin(e.data.port, e.data.name, gateway);
+                    return;
+                }
                 clientConnection.then((client) => client.send(e.data));
             };
         });

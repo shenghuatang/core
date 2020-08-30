@@ -157,7 +157,8 @@ export const createFactoryFunction = (coreFactoryFunction: GlueCoreFactoryFuncti
         const coreConfig = {
             gateway: {
                 sharedWorker: builtCoreConfig.glue?.worker ?? defaultWorkerLocation,
-                inproc: builtCoreConfig.glue?.inproc
+                inproc: builtCoreConfig.glue?.inproc,
+                plugins: (builtCoreConfig as any).plugins
             },
             logger: builtCoreConfig.glue?.logger,
             application: builtCoreConfig.glue?.application

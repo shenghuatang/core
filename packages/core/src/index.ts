@@ -381,6 +381,17 @@ const GlueCore = (userConfig?: Glue42Core.Config, ext?: Glue42Core.Extension): P
 if (typeof window !== "undefined") {
     (window as any).GlueCore = GlueCore;
 }
+declare const SharedWorkerGlobalScope: any;
+declare const self: any;
+if (typeof SharedWorkerGlobalScope !== "undefined") {
+    self.GluePlugin = () => GlueCore({
+        gateway: {
+            sharedWorker: self.gwPort
+        },
+        logger: "error"
+    });
+}
+
 (GlueCore as any).version = version;
 // add default library for ES6 modules
 (GlueCore as any).default = GlueCore;
