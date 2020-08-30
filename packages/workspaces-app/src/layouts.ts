@@ -1,5 +1,5 @@
 import GoldenLayout from "@glue42/golden-layout";
-import { Workspace, FrameLayoutConfig, WorkspaceItem, WorkspaceLayout, AnyItem } from "./types/internal";
+import { Workspace, FrameLayoutConfig, WorkspaceItem, WorkspaceLayout, AnyItem, SavedConfigWithData } from "./types/internal";
 import storage from "./storage";
 import configFactory from "./config/factory";
 import configConverter from "./config/converter";
@@ -7,6 +7,7 @@ import scReader from "./config/startupReader";
 import factory from "./config/factory";
 import { LayoutStateResolver } from "./layout/stateResolver";
 import { Glue42Web } from "@glue42/web";
+import { getWorkspaceContextName } from "./utils";
 
 declare const window: Window & { glue: Glue42Web.API };
 
@@ -28,7 +29,7 @@ export class LayoutsManager {
         // From workspace names
         if (startupConfig.workspaceNames && startupConfig.workspaceNames.length) {
             const workspaceConfigs = await Promise.all(startupConfig.workspaceNames.map(async (name) => {
-                return await this.getWorkspaceByName(name);
+                return (await this.getWorkspaceByName(name)).config;
             }));
 
             const validConfigs = workspaceConfigs.filter((wc) => wc);
@@ -37,7 +38,10 @@ export class LayoutsManager {
                 validConfigs.forEach((c) => {
                     c.id = factory.getId();
                     c.workspacesOptions = c.workspacesOptions || {};
-                    if (startupConfig.context) {
+                    if (startupConfig.context && c.workspacesOptions.context) {
+                        c.workspacesOptions.context = Object.assign(c.workspacesOptions.context, startupConfig.context);
+                    }
+                    else if (startupConfig.context) {
                         c.workspacesOptions.context = startupConfig.context;
                     }
                 });
@@ -79,7 +83,7 @@ export class LayoutsManager {
         return window.glue.layouts.export(this._layoutsType);
     }
 
-    public async getWorkspaceByName(name: string): Promise<GoldenLayout.Config> {
+    public async getWorkspaceByName(name: string): Promise<SavedConfigWithData> {
         const savedWorkspaceLayout = await window.glue.layouts.get(name, this._layoutsType);
         const savedWorkspace: WorkspaceItem = savedWorkspaceLayout.components[0].state as WorkspaceItem;
         const rendererFriendlyConfig = configConverter.convertToRendererConfig(savedWorkspace);
@@ -87,7 +91,10 @@ export class LayoutsManager {
         this.addWorkspaceIds(rendererFriendlyConfig);
         this.addWindowIds(rendererFriendlyConfig);
 
-        return rendererFriendlyConfig as GoldenLayout.Config;
+        return {
+            config: rendererFriendlyConfig as GoldenLayout.Config,
+            layoutData: { metadata: savedWorkspaceLayout.metadata, name }
+        };
     }
 
     public async delete(name: string) {
@@ -113,7 +120,7 @@ export class LayoutsManager {
                 type: this._layoutComponentType as "Workspace", state: {
                     children: workspaceConfig.children,
                     config: workspaceConfig.config,
-                    context: workspaceConfig.config?.context || workspace.context || {}
+                    context: this.getWorkspaceContext(workspace.id) || {}
                 }
             }]
         };
@@ -324,6 +331,10 @@ export class LayoutsManager {
         await Promise.all(config.content.map(async (ic) => {
             await applyWindowLayoutStateRecursive(ic);
         }));
+    }
+
+    private async getWorkspaceContext(id: string) {
+        return await window.glue.contexts.get(getWorkspaceContextName(id));
     }
 
     private async getWindowLayoutState(windowId: string) {

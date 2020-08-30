@@ -185,5 +185,20 @@ export interface APIWIndowSettings {
     positionIndex: number;
 }
 
+export interface SavedConfigWithData {
+    config: GoldenLayout.Config;
+    layoutData: {
+        metadata: object;
+        name: string;
+    };
+}
+
+export interface WorkspaceOptionsWithLayoutSummary extends GoldenLayout.WorkspacesOptions {
+    layoutSummary: {
+        name: string;
+        metadata: object;
+    };
+}
+
 export type WorkspaceOptionsWithTitle = GoldenLayout.WorkspacesOptions & { title?: string };
 export type LayoutWithMaximizedItem = GoldenLayout & { _maximizedItem?: GoldenLayout.ContentItem };
