@@ -462,6 +462,14 @@ export namespace Glue42Workspaces {
          */
         setTitle(title: string): Promise<void>;
 
+        getContext(): Promise<any>;
+
+        setContext(data: any): Promise<void>;
+
+        updateContext(data: any): Promise<void>;
+
+        onContextUpdated(callback: (data: any) => void): Promise<Unsubscribe>;
+
         /**
          * Updates this workspace reference to reflect the current state of the workspace. 
          */

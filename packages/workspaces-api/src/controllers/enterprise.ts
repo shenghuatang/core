@@ -187,6 +187,22 @@ export class EnterpriseController implements WorkspacesController {
         return await this.base.bundleTo(type, workspaceId);
     }
 
+    public getWorkspaceContext(workspaceId: string): Promise<any> {
+        return this.base.getWorkspaceContext(workspaceId);
+    }
+
+    public setWorkspaceContext(workspaceId: string, data: any): Promise<void> {
+        return this.base.setWorkspaceContext(workspaceId, data);
+    }
+
+    public updateWorkspaceContext(workspaceId: string, data: any): Promise<void> {
+        return this.base.updateWorkspaceContext(workspaceId, data);
+    }
+
+    public subscribeWorkspaceContextUpdated(workspaceId: string, callback: (data: any) => void): Promise<import("callback-registry").UnsubscribeFunction> {
+        return this.base.subscribeWorkspaceContextUpdated(workspaceId, callback);
+    }
+
     public async restoreItem(itemId: string): Promise<void> {
         return await this.base.restoreItem(itemId);
     }

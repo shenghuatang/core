@@ -108,6 +108,26 @@ export class Workspace implements Glue42Workspaces.Workspace {
         await this.refreshReference();
     }
 
+    public getContext(): Promise<any> {
+        const controller = getData(this).controller;
+        return controller.getWorkspaceContext(this.id);
+    }
+
+    public setContext(data: any): Promise<void> {
+        const controller = getData(this).controller;
+        return controller.setWorkspaceContext(this.id, data);
+    }
+
+    public updateContext(data: any): Promise<void> {
+        const controller = getData(this).controller;
+        return controller.updateWorkspaceContext(this.id, data);
+    }
+
+    public onContextUpdated(callback: (data: any) => void): Promise<Glue42Workspaces.Unsubscribe> {
+        const controller = getData(this).controller;
+        return controller.subscribeWorkspaceContextUpdated(this.id, callback);
+    }
+
     public async refreshReference(): Promise<void> {
         const newSnapshot = (await getData(this).controller.getSnapshot(this.id, "workspace")) as WorkspaceSnapshotResult;
 

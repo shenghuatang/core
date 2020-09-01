@@ -4,19 +4,21 @@ import { OPERATIONS } from "../communication/constants";
 import { FrameCreateConfig, WorkspaceIoCCreateConfig, WindowCreateConfig, ParentCreateConfig } from "../types/ioc";
 import { IoC } from "../shared/ioc";
 import { Bridge } from "../communication/bridge";
-import { Instance, GDWindow, WindowsAPI } from "../types/glue";
+import { Instance, GDWindow, WindowsAPI, ContextsAPI } from "../types/glue";
 import { Glue42Workspaces } from "../../workspaces";
 import { Frame } from "../models/frame";
 import { RefreshChildrenConfig } from "../types/privateData";
 import { Child } from "../types/builders";
 import { PrivateDataManager } from "../shared/privateDataManager";
 import { Window } from "../models/window";
+import { UnsubscribeFunction } from "callback-registry";
 
 export class BaseController {
 
     constructor(
         private readonly ioc: IoC,
-        private readonly windows: WindowsAPI
+        private readonly windows: WindowsAPI,
+        private readonly contexts: ContextsAPI
     ) { }
 
     private get bridge(): Bridge {
@@ -132,6 +134,22 @@ export class BaseController {
 
     public async bundleTo(type: "row" | "column", workspaceId: string, frameInstance?: Instance): Promise<void> {
         await this.bridge.send(OPERATIONS.bundleWorkspace.name, { type, workspaceId }, frameInstance);
+    }
+
+    public getWorkspaceContext(workspaceId: string): Promise<any> {
+        return this.contexts.get(workspaceId);
+    }
+
+    public setWorkspaceContext(workspaceId: string, data: any): Promise<void> {
+        return this.contexts.set(workspaceId, data);
+    }
+
+    public updateWorkspaceContext(workspaceId: string, data: any): Promise<void> {
+        return this.contexts.update(workspaceId, data);
+    }
+
+    public subscribeWorkspaceContextUpdated(workspaceId: string, callback: (data: any) => void): Promise<UnsubscribeFunction> {
+        return this.contexts.subscribe(workspaceId, callback);
     }
 
     public async restoreItem(itemId: string, frameInstance?: Instance): Promise<void> {
