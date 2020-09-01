@@ -462,12 +462,27 @@ export namespace Glue42Workspaces {
          */
         setTitle(title: string): Promise<void>;
 
+        /**
+         * Gets the context for this workspace.
+         */
         getContext(): Promise<any>;
 
+        /**
+         * Sets the context for this workspace. This operation will completely overwrite the existing context.
+         * @param data The new context value.
+         */
         setContext(data: any): Promise<void>;
 
+        /**
+         * Updated the context for this workspace. This operation will merge the existing context with the provided value.
+         * @param data The context value to update.
+         */
         updateContext(data: any): Promise<void>;
 
+        /**
+         * Notifies when the context for this workspace was updated.
+         * @param callback Callback function to handle the event.
+         */
         onContextUpdated(callback: (data: any) => void): Promise<Unsubscribe>;
 
         /**
