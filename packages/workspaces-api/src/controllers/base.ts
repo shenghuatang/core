@@ -137,19 +137,23 @@ export class BaseController {
     }
 
     public getWorkspaceContext(workspaceId: string): Promise<any> {
-        return this.contexts.get(workspaceId);
+        const contextName = `___workspace___${workspaceId}`;
+        return this.contexts.get(contextName);
     }
 
     public setWorkspaceContext(workspaceId: string, data: any): Promise<void> {
-        return this.contexts.set(workspaceId, data);
+        const contextName = `___workspace___${workspaceId}`;
+        return this.contexts.set(contextName, data);
     }
 
     public updateWorkspaceContext(workspaceId: string, data: any): Promise<void> {
-        return this.contexts.update(workspaceId, data);
+        const contextName = `___workspace___${workspaceId}`;
+        return this.contexts.update(contextName, data);
     }
 
     public subscribeWorkspaceContextUpdated(workspaceId: string, callback: (data: any) => void): Promise<UnsubscribeFunction> {
-        return this.contexts.subscribe(workspaceId, callback);
+        const contextName = `___workspace___${workspaceId}`;
+        return this.contexts.subscribe(contextName, callback);
     }
 
     public async restoreItem(itemId: string, frameInstance?: Instance): Promise<void> {
