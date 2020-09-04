@@ -25,7 +25,7 @@ export class AppManager implements Glue42Web.AppManager.API {
     private DEFAULT_POLLING_INTERVAL = 3000;
     private OKAY_MESSAGE = "OK";
     private LOCAL_SOURCE = "LOCAL_SOURCE";
-    private readyPromise: Promise<void | void[]>;
+    private readyPromise: Promise<void>;
 
     constructor(private windows: Windows, private interop: Glue42Web.Interop.API, private control: Control, private config?: AppManagerConfig, private appName?: string) {
         const myId = interop.instance.instance as string;
@@ -133,43 +133,30 @@ export class AppManager implements Glue42Web.AppManager.API {
         return verifiedApplications;
     }
 
-    private subscribeForRemoteApplications(remoteSources: RemoteSource[]): Promise<void | void[]> {
+    private async subscribeForRemoteApplications(remoteSources: RemoteSource[]): Promise<void> {
         const initialFetchAppsPromises = [];
 
         for (const remoteSource of remoteSources) {
             const url = remoteSource.url;
 
-            const fetchApps = (): Promise<void> => {
-                return fetchTimeout(url)
-                    .then((response) => {
-                        return response.json();
-                    })
-                    .then((json: { message: string; applications: Array<Glue42CoreApplicationConfig | FDC3ApplicationConfig> }) => {
-                        if (json.message === this.OKAY_MESSAGE) {
-                            const validatedApplications = this.getValidatedApplications(json.applications);
+            const appsFetch = async () => {
+                const response = await fetchTimeout(url, 1000);
+                const json = (await response.json()) as { message: string; applications: Array<Glue42CoreApplicationConfig | FDC3ApplicationConfig> };
 
-                            this.addApplications(validatedApplications, url);
-                        }
-                    })
-                    .catch((error) => {
-                        // tslint:disable-next-line:no-console
-                        console.warn(error);
-                    });
+                if (json.message === this.OKAY_MESSAGE) {
+                    const validatedApplications = this.getValidatedApplications(json.applications);
+
+                    this.addApplications(validatedApplications, url);
+                }
             };
 
-            initialFetchAppsPromises.push(fetchApps());
+            initialFetchAppsPromises.push(appsFetch());
 
-            setInterval(fetchApps, remoteSource.pollingInterval || this.DEFAULT_POLLING_INTERVAL);
+            // tslint:disable-next-line:no-console
+            setInterval(() => appsFetch().catch(console.warn), remoteSource.pollingInterval || this.DEFAULT_POLLING_INTERVAL);
         }
 
-        const initialTimeoutMilliseconds = 1000;
-        const timeout: Promise<void> = new Promise((resolve) => {
-            setTimeout(() => {
-                resolve();
-            }, initialTimeoutMilliseconds);
-        });
-
-        return Promise.race([timeout, Promise.all(initialFetchAppsPromises)]);
+        await Promise.all(initialFetchAppsPromises);
     }
 
     private getAppProps(application: Glue42CoreApplicationConfig | FDC3ApplicationConfig): AppProps {
