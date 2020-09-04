@@ -25,6 +25,7 @@ export class AppManager implements Glue42Web.AppManager.API {
     private DEFAULT_POLLING_INTERVAL = 3000;
     private OKAY_MESSAGE = "OK";
     private LOCAL_SOURCE = "LOCAL_SOURCE";
+    private readyPromise: Promise<void | void[]>;
 
     constructor(private windows: Windows, private interop: Glue42Web.Interop.API, private control: Control, private config?: AppManagerConfig, private appName?: string) {
         const myId = interop.instance.instance as string;
@@ -32,7 +33,7 @@ export class AppManager implements Glue42Web.AppManager.API {
         this._myInstance = new LocalInstance(myId, this.control, this, this.interop.instance);
 
         if (config?.remoteSources) {
-            this.subscribeForRemoteApplications(config.remoteSources);
+            this.readyPromise = this.subscribeForRemoteApplications(config.remoteSources);
         }
         if (config?.localApplications) {
             const validatedApplications = this.getValidatedApplications(config.localApplications);
@@ -99,6 +100,16 @@ export class AppManager implements Glue42Web.AppManager.API {
         return this.registry.add("instanceStopped", callback);
     }
 
+    // Resolve the AppManager API once all remote sources of applications have been fetched. If any of the fetches fail swallow the error and resolve.
+    public async ready(): Promise<void> {
+        try {
+            await this.readyPromise;
+            // tslint:disable-next-line:no-console
+        } catch (error) {
+            // Swallow the error.
+        }
+    }
+
     private getValidatedApplications(applications: Array<Glue42CoreApplicationConfig | FDC3ApplicationConfig>): Array<Glue42CoreApplicationConfig | FDC3ApplicationConfig> {
         const verifiedApplications = applications.filter((application) => {
             const isFDC3App = typeof (application as FDC3ApplicationConfig).manifest !== "undefined";
@@ -122,12 +133,14 @@ export class AppManager implements Glue42Web.AppManager.API {
         return verifiedApplications;
     }
 
-    private subscribeForRemoteApplications(remoteSources: RemoteSource[]): void {
+    private subscribeForRemoteApplications(remoteSources: RemoteSource[]): Promise<void | void[]> {
+        const initialFetchAppsPromises = [];
+
         for (const remoteSource of remoteSources) {
             const url = remoteSource.url;
 
-            const fetchApps = (): void => {
-                fetchTimeout(url)
+            const fetchApps = (): Promise<void> => {
+                return fetchTimeout(url)
                     .then((response) => {
                         return response.json();
                     })
@@ -144,10 +157,19 @@ export class AppManager implements Glue42Web.AppManager.API {
                     });
             };
 
-            fetchApps();
+            initialFetchAppsPromises.push(fetchApps());
 
             setInterval(fetchApps, remoteSource.pollingInterval || this.DEFAULT_POLLING_INTERVAL);
         }
+
+        const initialTimeoutMilliseconds = 1000;
+        const timeout: Promise<void> = new Promise((resolve) => {
+            setTimeout(() => {
+                resolve();
+            }, initialTimeoutMilliseconds);
+        });
+
+        return Promise.race([timeout, Promise.all(initialFetchAppsPromises)]);
     }
 
     private getAppProps(application: Glue42CoreApplicationConfig | FDC3ApplicationConfig): AppProps {
