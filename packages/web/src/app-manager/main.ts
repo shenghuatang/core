@@ -58,7 +58,7 @@ export class AppManager implements Glue42Web.AppManager.API {
     }
 
     public application(name: string): Glue42Web.AppManager.Application {
-        return this._apps[name].application;
+        return this._apps[name]?.application;
     }
 
     public applications(): Glue42Web.AppManager.Application[] {
