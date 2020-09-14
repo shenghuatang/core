@@ -27,6 +27,11 @@ class ConfigConverter {
             workspacesOptions: config.config || {},
         };
 
+        if (config?.config?.context) {
+            glConfig.workspacesOptions = Object.assign(glConfig.workspacesOptions, { context: config.config.context })
+        }
+
+
         if (config.type === "workspace" || !config.type) {
             glConfig = this.applyDefaultRendererConfig({
                 content: [],

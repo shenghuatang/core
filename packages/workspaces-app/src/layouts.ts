@@ -112,6 +112,11 @@ export class LayoutsManager {
         if (title) {
             workspaceConfig.config.title = title;
         }
+        try {
+            workspaceConfig.config.context = await this.getWorkspaceContext(workspace.id) || {}
+        } catch (error) {
+            // can throw an exception when reloading
+        }
         const layoutToImport = {
             name,
             type: this._layoutsType as "Workspace",
@@ -120,7 +125,6 @@ export class LayoutsManager {
                 type: this._layoutComponentType as "Workspace", state: {
                     children: workspaceConfig.children,
                     config: workspaceConfig.config,
-                    context: this.getWorkspaceContext(workspace.id) || {}
                 }
             }]
         };
@@ -168,12 +172,16 @@ export class LayoutsManager {
         }
         const workspaceConfig = this.resolver.getWorkspaceConfig(workspace.id);
         this.removeWorkspaceIds(workspaceConfig);
-        await this.applyWindowLayoutState(workspaceConfig);
+         await this.applyWindowLayoutState(workspaceConfig);
 
         const workspaceItem = configConverter.convertToAPIConfig(workspaceConfig) as WorkspaceItem;
         this.removeWorkspaceItemIds(workspaceItem);
 
-        await this.addWindowContexts(workspaceItem);
+        try {
+            await this.addWindowContexts(workspaceItem);
+        } catch (error) {
+
+        }
 
         // The excess properties should be cleaned
         this.windowSummariesToWindowLayout(workspaceItem);
